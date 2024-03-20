@@ -36,7 +36,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 class UserDropdown extends Component{
-  constructor(props){
+  constructor(props: any){
    super(props);
    console.log('UserDropdown.props' + JSON.stringify(props));
   // ** States
