@@ -16,7 +16,7 @@ import Alert from '@mui/material/Alert'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import { styled } from '@mui/material/styles'
-import { TableCellProps, tableCellClasses } from '@mui/material/TableCell'
+import { tableCellClasses } from '@mui/material/TableCell'
 
 import IconButton from '@mui/material/IconButton'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt'
@@ -46,7 +46,7 @@ const LinkStyled = styled('a')(({ theme }) => ({
 
 
 //faz o head da tabela
-const StyledTableCell = styled(TableCell)<TableCellProps>(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     color: theme.palette.common.white,
     backgroundColor: '#001D34'

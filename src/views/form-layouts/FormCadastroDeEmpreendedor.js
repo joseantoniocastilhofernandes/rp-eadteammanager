@@ -29,7 +29,7 @@ import HandshakeOutline from 'mdi-material-ui/HandshakeOutline'
 import CheckIcon from '@mui/icons-material/Check'
 import InputMask from 'react-input-mask'
 import { Input } from '@mui/material';
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
+import MuiFormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import { styled, useTheme } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
@@ -45,7 +45,7 @@ var showForm = true;
 
 var blankForm = {nome: '', email : '', codigoEmpreendedor : '', codigoDistribuicao: 0, podeCadastrarRecrutas: false};
 
-const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
+const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
   '& .MuiFormControlLabel-label': {
     fontSize: '0.875rem',
     color: theme.palette.text.secondary
