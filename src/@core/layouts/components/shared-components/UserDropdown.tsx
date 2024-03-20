@@ -51,9 +51,10 @@ class UserDropdown extends Component{
         var user = sessionStorage.getItem('loggedUser');
         if(user != null){
           user = JSON.parse(user);
+          console.log('componentDidMount sessionStorageloggedUser:' + sessionStorage.getItem('loggedUser'));
+          this.setState({ ...this.state,  'nomeUsuario': user.nomeCompleto, 'usuarioLogado': user }) ;
         }
-        console.log('componentDidMount sessionStorageloggedUser:' + sessionStorage.getItem('loggedUser'));
-        this.setState({ ...this.state,  'nomeUsuario': user.nomeCompleto, 'usuarioLogado': user }) ;
+        
   }
   render(){
 
