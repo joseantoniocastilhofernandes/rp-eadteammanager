@@ -36,7 +36,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 class UserDropdown extends Component{
-  constructor(props: any){
+  constructor(props){
    super(props);
    console.log('UserDropdown.props' + JSON.stringify(props));
   // ** States
@@ -52,7 +52,7 @@ class UserDropdown extends Component{
         if(user != null){
           user = JSON.parse(user);
           console.log('componentDidMount sessionStorageloggedUser:' + sessionStorage.getItem('loggedUser'));
-          this.setState({ ...this.state,  'nomeUsuario': user.nomeCompleto, 'usuarioLogado': user }) ;
+       //   this.setState({ ...this.state,  'nomeUsuario': user.nomeCompleto, 'usuarioLogado': user }) ;
         }
         
   }
@@ -61,7 +61,7 @@ class UserDropdown extends Component{
  
 
 
-  const handleDropdownOpen = (event: SyntheticEvent) => {
+  const handleDropdownOpen = (event) => {
     console.log('handleDropdownOpen' + sessionStorage.getItem('loggedUser'));
 
     var user = JSON.parse(sessionStorage.getItem('loggedUser'));
@@ -78,10 +78,8 @@ class UserDropdown extends Component{
       sessionStorage.removeItem('loggedUser');
       window.location.href = "/";
   }
-  const handleDropdownClose = (url?: string) => {
-    if (url) {
-      router.push(url)
-    }
+  const handleDropdownClose = (url) => {
+    
      this.setState({ ...this.state,  'anchorEL': null }) ;
   }
 

@@ -36,7 +36,7 @@ import TableStickyHeader from 'src/views/tables/TableStickyHeader'
 
 
 //faz o head da tabela
-const StyledTableCell = styled(TableCell)<TableCellProps>(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     color: theme.palette.common.white,
     backgroundColor: theme.palette.common.blueroyal
@@ -46,7 +46,7 @@ const StyledTableCell = styled(TableCell)<TableCellProps>(({ theme }) => ({
   }
 }))
 //linhas com cores diferentes na tabela
-const StyledTableRow = styled(TableRow)<TableRowProps>(({ theme }) => ({
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover
   },
@@ -57,7 +57,7 @@ const StyledTableRow = styled(TableRow)<TableRowProps>(({ theme }) => ({
   }
 }))
 
-const ccyFormat = (num: number) => {
+const ccyFormat = (num) => {
   if(num){
     return `${num.toFixed(2)}`  
   }else return 0;

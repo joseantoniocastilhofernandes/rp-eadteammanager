@@ -98,7 +98,7 @@ componentDidMount() {
 
   render(){
 
-    const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (prop) => (event) => {
 
        if(prop === 'senhaAntiga'){
           this.setState({ [prop]: event.target.value, senhaAntigaError: false, senhaAntigaMsg: '' })  

@@ -45,11 +45,7 @@ import {SERVICES_CONTEXT, setLoggedUser} from 'src/@core/constants/constants.js'
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
-interface State {
-  password: string
-  showPassword: boolean
-  showEmailError: boolean
-}
+
 
  
 
@@ -125,7 +121,7 @@ class LoginPage extends Component{
     }
     render(){
 
-    const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (prop) => (event) => {
      
       this.setState({ ...this.state, [prop]: event.target.value });
     }
@@ -241,7 +237,7 @@ class LoginPage extends Component{
     this.setState({ ...this.state, showPassword: !this.state.showPassword })
   }
 
-  const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleMouseDownPassword = (event) => {
     event.preventDefault()
   }
 
@@ -335,6 +331,6 @@ class LoginPage extends Component{
   }
 }
 
-LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+LoginPage.getLayout = (page) => <BlankLayout>{page}</BlankLayout>
 
 export default LoginPage
