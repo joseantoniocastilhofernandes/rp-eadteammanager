@@ -22,7 +22,7 @@ import React, { useState } from 'react'
 
 const FormCadastroDeEmpreendedor = () => {
 
-const [empreendedor, setEmpreendedor] = useState({
+const [empreendedor, setEmpreendedor] = useState(
   {
     id : 0,
     email: 'emailteste@gmail.com',
@@ -34,7 +34,7 @@ const [empreendedor, setEmpreendedor] = useState({
     podeCadastrarRecrutas: false
 
   }
-});
+);
   return (
     <Card>
       <CardHeader title='Cadastro de novo empreendedor' titleTypographyProps={{ variant: 'h6' }} />

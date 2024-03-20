@@ -27,12 +27,10 @@ import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import TableBasic from 'src/views/tables/TableBasic'
-import TableDense from 'src/views/tables/TableDense'
-import TableSpanning from 'src/views/tables/TableSpanning'
-import TableCustomized from 'src/views/tables/TableCustomized'
-import TableCollapsible from 'src/views/tables/TableCollapsible'
-import TableStickyHeader from 'src/views/tables/TableStickyHeader'
+
+
+
+
 
 
 //faz o head da tabela

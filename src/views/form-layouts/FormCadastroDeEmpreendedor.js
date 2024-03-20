@@ -268,7 +268,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
       }
      
     }
-    const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (prop) => (event) => {
 
       if(prop === 'nome'){
           this.setState({ [prop]: event.target.value, showErrorNome: false, msgErrorNome: '' })  
@@ -331,9 +331,9 @@ export default class FormCadastroDeEmpreendedor extends Component{
       );
     }else{
       return (
-       
+       <>
         <Card>
-          <CardHeader title='Cadastro de empreendedor' titleTypographyProps={{ variant: 'h6' , mb: 5, mt: 5}} avatar= <PersonAddIcon />>
+          <CardHeader title='Cadastro de empreendedor' titleTypographyProps={{ variant: 'h6' , mb: 5, mt: 5}} avatar={<PersonAddIcon />}>
           
           </CardHeader>
 
@@ -532,6 +532,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
             </form>
           </CardContent>
         </Card>
+        </>
       )
 };
 }

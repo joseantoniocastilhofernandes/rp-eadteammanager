@@ -42,33 +42,21 @@ const LinkStyled = styled('a')(({ theme }) => ({
   color: theme.palette.primary.main
 }))
 
-interface Empreendedor{
-  idEmpreendedor: number
-  nome: string
-  sobrenome: string
-  email: string
-  podeRecrutar: boolean
-  dtCadastro: string
-  dhUltimoAcesso: string
-}
 
-interface StatusObj {
-  [key: string]: {
-    color: ThemeColor
-  }
-}
+
+
 //faz o head da tabela
 const StyledTableCell = styled(TableCell)<TableCellProps>(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     color: theme.palette.common.white,
-    backgroundColor: theme.palette.common.blueroyal
+    backgroundColor: '#001D34'
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14
   }
 }))
 //linhas com cores diferentes na tabela
-const StyledTableRow = styled(TableRow)<TableRowProps>(({ theme }) => ({
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover
   },
@@ -90,13 +78,7 @@ const abrirRelatorioDeEstudosDoEmpreendedor= (idEmpreendedor)=>{
   window.location.href = '/relatorio-de-estudo?idEmpreendedor='+ idEmpreendedor;
 }
 
-const statusObj: StatusObj = {
-  applied: { color: 'info' },
-  rejected: { color: 'error' },
-  current: { color: 'primary' },
-  resigned: { color: 'warning' },
-  professional: { color: 'success' }
-}
+
 
 function LinhasEmpreenderoresTable (props){
   var empreendedores = props.empreendedores;
@@ -143,7 +125,7 @@ function LinhasEmpreenderoresTable (props){
             </TableRow>
           </TableHead>
           <TableBody>
-        {props.empreendedores.map((row: Empreendedor) => (
+        {props.empreendedores.map((row) => (
               <StyledTableRow hover key={row.idEmpreendedor} sx={{ '&:last-of-type td, &:last-of-type th ': { border: 0 } }}>
                 <TableCell sx={{ py: theme => `${theme.spacing(0.5)} !important` }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>

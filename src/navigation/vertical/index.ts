@@ -25,32 +25,7 @@ const navigation = (): VerticalNavItemsType => {
       icon: AccountPlusOutline,
       path: '/cadastro-de-empreendedor',
     
-    }/*,
-    {
-      title: 'Configurações',
-      icon: AccountCogOutline,
-      path: '/configuracoes'
-    },
-    {
-      sectionTitle: 'Relatórios'
-    },
-    {
-      title: 'Notas da equipe',
-      icon: Table,
-      path: '/relatorio-de-estudo'
-    },
-
-    {
-      title: 'Andamento da equipe',
-      icon: Table,
-      path: '/relatorio-geral-da-equipe'
-    },
-     {
-      title: 'Sair',
-      icon: Login,
-      path: '/pages/login',
-      openInNewTab: true
-    } */
+    }
   ]
 }
 
