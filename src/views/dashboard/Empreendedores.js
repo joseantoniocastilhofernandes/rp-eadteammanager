@@ -157,6 +157,9 @@ function LinhasEmpreenderoresTable (props){
     
   }
   const confirmaExclusao=(empreendedor) =>{
+    axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
+    axios.defaults.headers.post['Access-Control-Allow-Methods']='GET,POST';
+
     console.log('confirmaExclusao');
     var user = sessionStorage.getItem('loggedUser');
     if(user != null){
@@ -168,6 +171,7 @@ function LinhasEmpreenderoresTable (props){
           method: 'post',
           url:  SERVICES_CONTEXT + '/empreendedorservice/removerEmpreendedor?idEmpreendedor=' + empreendedor.id+ '&idPatrocinador=' + idPatrocinador,
           withCredentials: false,
+          
 
         }).then(function (response) {
             //this.setState({ ...this.state, showErrorMessage: false, showEmailError: false, showPasswordError: false, doingLogin : false });   
