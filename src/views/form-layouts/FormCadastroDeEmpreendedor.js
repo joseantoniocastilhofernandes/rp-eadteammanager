@@ -43,7 +43,6 @@ import BusinessIcon from '@mui/icons-material/Business'
 
 var showForm = true;
 
-var blankForm = {nome: '', email : '', codigoEmpreendedor : '', codigoDistribuicao: 0, podeCadastrarRecrutas: false};
 
 const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
   '& .MuiFormControlLabel-label': {
@@ -78,7 +77,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
       codigoEmpreendedor : '', 
       codigoDistribuicao: '', 
       nomeDistribuicao: '', 
-      podeCadastrarRecrutas: false,
+      podeCadastrarRecrutas: true,
       showErrorNome: false, 
       showErrorSobrenome: false, 
       showErrorEmail : false,
@@ -108,6 +107,9 @@ export default class FormCadastroDeEmpreendedor extends Component{
     }
  const getDadosParaCadastro = () =>{
     var user = sessionStorage.getItem('loggedUser');
+    if(user != null){
+      user = JSON.parse(user);
+    }
     var idPatrocinador = user.idEmpreendedor;
     var dadosParaCadastro = {
         "idPatrocinador" : idPatrocinador,
@@ -119,6 +121,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
             "celular": this.state.celular,
             "codigoDistribuicao": this.state.codigoDistribuicao,
             "nomeDistribuicao": this.state.nomeDistribuicao,
+            "codigoEmpreendedor": this.state.codigoEmpreendedor
         }
     };
     console.log('getDadosParaCadastro=> '+ JSON.stringify(dadosParaCadastro));
@@ -135,12 +138,14 @@ export default class FormCadastroDeEmpreendedor extends Component{
         codigoEmpreendedor : '', 
         codigoDistribuicao: '', 
         nomeDistribuicao: '', 
-        podeCadastrarRecrutas: false,
+        podeCadastrarRecrutas: true,
         showErrorNome: false, 
         showErrorSobrenome: false, 
         showErrorEmail : false,
         showErrorCelular : false,
         showErrorCodigoEmpreendedor : false,
+        showErrorCodigoDistribuicao: false,
+        msgErrorCodigoDistribuicao : '',
         showSucessMessage : false,
         msgErrorNome: '', 
         msgErrorSobrenome: ''
@@ -154,7 +159,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
      console.log('state.empreendedor.nome.trim().length=' + this.state.nome.trim().length);
      var hasFormErrors =false;
       if(this.state.nome.length  === 0){
-      //  this.setState({ ...this.state, empreendedores: e, loadingEmpreendedores: false}); 
+      // 
         hasFormErrors = true;
         this.setState({ ...this.state, showErrorNome: true, msgErrorNome: 'Por favor preencha o nome' })
         console.log('state.empreendedor.nome.=> ' + JSON.stringify(this.state));
@@ -185,17 +190,14 @@ export default class FormCadastroDeEmpreendedor extends Component{
           //chamar o serviço
         var dadosParaCadastro = getDadosParaCadastro(); //dados em formato json
         console.log('dadosParaCadastro ' + dadosParaCadastro);
-
+        this.setState({ ...this.state, salvandoDados: true}); 
        
         axios({
           method: 'post',
           url:  SERVICES_CONTEXT + '/empreendedorservice/cadastrarEmpreendedor',
           withCredentials: false,
           headers: {
-            'Content-Type': 'application/json' ,
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' ,
-            'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, origin, accept, authorization'
+            'Content-Type': 'application/json' 
           },
           data: JSON.stringify(dadosParaCadastro),
 
@@ -216,20 +218,77 @@ export default class FormCadastroDeEmpreendedor extends Component{
                     console.log(errorList);
                     for (var int = 0; int < errorList.length; int++) {
                       var codigoDeErro = errorList[int];
-                      if(codigoDeErro == 'LOGINERROR_EMAIL_INVALIDO'){
-                        atualizarStatus(false, true, true, false, 'Email Inválido! Digite um Email válido!');
+
+
+                      /*
+
+EMPREENDEDORSERVICE_NOME_REQUERIDO
+EMPREENDEDORSERVICE_SOBRENOME_REQUERIDO
+EMPREENDEDORSERVICE_EMAIL_REQUERIDO
+EMPREENDEDORSERVICE_EMAIL_INVALIDO
+EMPREENDEDORSERVICE_CELULAR_REQUERIDO
+EMPREENDEDORSERVICE_CELULAR_INVALIDO
+EMPREENDEDORSERVICE_IDPATROCINADOR_REQUERIDO
+EMPREENDEDORSERVICE_JA_EXISTE_EMPREENDEDOR_CADASTRADO_COMESTEEMAIL
+EMPREENDEDORSERVICE_JA_EXISTE_USUARIONOMOODLE_CADASTRADO_COMESTEEMAIL
+EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COMCODIGODEEMPREENDEDOR
+EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COM_CODIGODEDISTRIBUICAO
+  
+                      */
+
+                      if(codigoDeErro == 'EMPREENDEDORSERVICE_EMAIL_INVALIDO'){
+                        mostrarRetornoServicoEmail(
+                          false,
+                          true,
+                          'Preencha um e-mail válido!'
+                          );
                       }
 
-                      if(codigoDeErro == 'LOGINERROR_EMAIL_NAO_CADASTRADO'){
-                        atualizarStatus(false, true, true, false, 'Não existe cadastro para o email fornecido!' );
+                      if(codigoDeErro == 'EMPREENDEDORSERVICE_JA_EXISTE_EMPREENDEDOR_CADASTRADO_COMESTEEMAIL'){
+                        mostrarRetornoServicoEmail(
+                          false,
+                          true,
+                          'Já existe empreendedor cadastrado com este email!'
+                          );
                       }
 
-                      if(codigoDeErro == 'LOGINERROR_SENHA_INCORRETA'){
-                        showMsgErroSenha('Sua senha está incorreta!');                  
+                     if(codigoDeErro == 'EMPREENDEDORSERVICE_JA_EXISTE_USUARIONOMOODLE_CADASTRADO_COMESTEEMAIL'){
+                        mostrarRetornoServicoEmail(
+                          false,
+                          true,
+                          'Já existe empreendedor cadastrado com este email!'
+                          );
                       }
 
-                      if(codigoDeErro == 'LOGINERROR_USUARIO_BLOQUEADO'){
-                        atualizarStatus(false, true, false, false, 'Usuário bloqueado! Entre em contato com o seu patrocinador!' );
+                      
+
+                      if(codigoDeErro == 'EMPREENDEDORSERVICE_CELULAR_INVALIDO'){
+                        mostrarRetornoServicoCelular(
+                          false,
+                          true, 
+                          'Forneça um celular válido!'
+                        );                 
+                      }
+
+                      if(codigoDeErro == 'EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COMCODIGODEEMPREENDEDOR'){
+                         
+                        mostrarRetornoServicoCodigoEmpreendedor(
+                            false,
+                            true,
+                            'Já existe empreeendedor cadastrado com este código!'
+                        );
+        
+                      }
+
+
+                      if(codigoDeErro == 'EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COM_CODIGODEDISTRIBUICAO'){
+                         
+                        mostrarRetornoServicoCodigoDistribuicao(
+                            false,
+                            true,
+                            'Já existe cadastro com este código de distribuição!'
+                        );
+        
                       }
 
                     }
@@ -241,15 +300,9 @@ export default class FormCadastroDeEmpreendedor extends Component{
                       console.log('sem erros');
                      // $scope.password = '';
                     //  $rootScope.user = response.data.result.user;
-                      var usuarioLogado = jsonResponse.user;
-                      sessionStorage.setItem('loggedUser', JSON.stringify(usuarioLogado));
-                      console.log('Usuario adicionado no sessionStorage ' +JSON.stringify(usuarioLogado) );
-                      //LoggedUserService.setLoggedUser($rootScope.user);
-                    
-                    //  $cookieStore.put('pgn-userid', iddoUsuario);
-                     // $location.path("/app/meuscursos");
-                      //setValues({ ...values, showErrorMessage: false, showEmailError: false, showPasswordError: false, doingLogin : false }); 
-                      window.location.href = '/';
+                    //mostrar mensagem de sucesso  
+                      mostrarMensagemDeSucesso();
+
                   }
 
               }else{
@@ -264,10 +317,116 @@ export default class FormCadastroDeEmpreendedor extends Component{
           .catch(function (error) {
             console.log(error);
           });
-         this.setState({showSucessMessage: true});   
+        // this.setState({showSucessMessage: true});   
       }
      
     }
+    const mostrarMensagemDeSucesso = () =>{
+
+        this.setState(
+          { ...this.state,  
+          'salvandoDados' : false,
+          'showSucessMessage': true, 
+          'msgErrorEmail': '', 
+          'showErrorCelular': false, 
+          'msgErrorCelular': '', 
+          'showErrorCodigoEmpreendedor': false, 
+          'msgErrorCodigoEmpreendedor': ''
+          }) ;       
+    }
+
+    const mostrarRetornoServico = (
+      salvandoDados,
+      showErrorEmail, 
+      msgErrorEmail,
+      showErrorCelular,
+      msgErrorCelular,
+      showErrorCodigoEmpreendedor,
+      msgErrorCodigoEmpreendedor
+      )=>{
+       
+        this.setState(
+          { ...this.state,  
+          'salvandoDados' : salvandoDados,
+          'showErrorEmail': showErrorEmail, 
+          'msgErrorEmail': msgErrorEmail, 
+          'showErrorCelular': showErrorCelular, 
+          'msgErrorCelular': msgErrorCelular, 
+          'showErrorCodigoEmpreendedor': showErrorCodigoEmpreendedor, 
+          'msgErrorCodigoEmpreendedor': msgErrorCodigoEmpreendedor  }) ; 
+         /*
+
+            EMPREENDEDORSERVICE_NOME_REQUERIDO
+            EMPREENDEDORSERVICE_SOBRENOME_REQUERIDO
+            EMPREENDEDORSERVICE_EMAIL_REQUERIDO
+            EMPREENDEDORSERVICE_EMAIL_INVALIDO
+            EMPREENDEDORSERVICE_CELULAR_REQUERIDO
+            EMPREENDEDORSERVICE_CELULAR_INVALIDO
+            EMPREENDEDORSERVICE_IDPATROCINADOR_REQUERIDO
+            EMPREENDEDORSERVICE_JA_EXISTE_EMPREENDEDOR_CADASTRADO_COMESTEEMAIL
+            EMPREENDEDORSERVICE_JA_EXISTE_USUARIONOMOODLE_CADASTRADO_COMESTEEMAIL
+            EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COMCODIGODEEMPREENDEDOR
+            EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COM_CODIGODEDISTRIBUICAO
+  
+                      */
+     
+    }
+
+    const mostrarRetornoServicoEmail = (
+      salvandoDados,
+      showErrorEmail, 
+      msgErrorEmail
+      )=>{
+       
+        this.setState(
+          { ...this.state,  
+          'salvandoDados' : salvandoDados,
+          'showErrorEmail': showErrorEmail, 
+          'msgErrorEmail': msgErrorEmail
+          }) ; 
+    }
+    const mostrarRetornoServicoCelular = (
+      salvandoDados,
+      showErrorCelular, 
+      msgErrorCelular
+      )=>{
+       
+        this.setState(
+          { ...this.state,  
+          'salvandoDados' : salvandoDados,
+          'showErrorCelular': showErrorCelular, 
+          'msgErrorCelular': msgErrorCelular
+          }) ; 
+    }
+
+    const mostrarRetornoServicoCodigoEmpreendedor = (
+      salvandoDados,
+      showErrorCodigoEmpreendedor, 
+      msgErrorCodigoEmpreendedor
+      )=>{
+       
+        this.setState(
+          { ...this.state,  
+          'salvandoDados' : salvandoDados,
+          'showErrorCodigoEmpreendedor': showErrorCodigoEmpreendedor, 
+          'msgErrorCodigoEmpreendedor': msgErrorCodigoEmpreendedor
+          }) ; 
+    }
+
+     const mostrarRetornoServicoCodigoDistribuicao = (
+      salvandoDados,
+      showErrorCodigoDistribuicao, 
+      msgErrorCodigoDistribuicao
+      )=>{
+       
+        this.setState(
+          { ...this.state,  
+          'salvandoDados' : salvandoDados,
+          'showErrorCodigoDistribuicao': showErrorCodigoDistribuicao, 
+          'msgErrorCodigoDistribuicao': msgErrorCodigoDistribuicao
+          }) ; 
+    }
+
     const handleChange = (prop) => (event) => {
 
       if(prop === 'nome'){
@@ -289,9 +448,9 @@ export default class FormCadastroDeEmpreendedor extends Component{
     if(this.state.showSucessMessage){
 
       return(
-<Card>
-          <CardHeader  titleTypographyProps={{ variant: 'h6' }} />
-          <CardContent >
+          <Card>
+            <CardHeader  titleTypographyProps={{ variant: 'h6' }} />
+            <CardContent >
             <form onSubmit={e => e.preventDefault()}>
               <Grid container spacing={5}>
                           
@@ -467,6 +626,8 @@ export default class FormCadastroDeEmpreendedor extends Component{
                     inputProps={{
                       maxLength: 10,
                     }}
+                    error={this.state.showErrorCodigoDistribuicao}
+                    helperText={this.state.msgErrorCodigoDistribuicao}
                     value={this.state.codigoDistribuicao}
                     placeholder='Código de Distribuição'
                     InputProps={{
@@ -504,8 +665,10 @@ export default class FormCadastroDeEmpreendedor extends Component{
                   <Checkbox
                     label='Pode cadastrar recrutas?'
                     placeholder='Sim'
+                    defaultChecked 
                     onChange={handleChange('podeCadastrarRecrutas')} 
-                    value={this.state.podeCadastrarRecrutas}
+                    checked={this.state.podeCadastrarRecrutas}
+        
                   />
                   Pode cadastrar recrutas?
                   <Tooltip title='Ao marcar esta opção seu empreendedor também irá receber um login e senha para acessar este sistema de gestão de equipe para que ele possa liberar acessos do ead para os empreendedores dele.'>
@@ -519,14 +682,16 @@ export default class FormCadastroDeEmpreendedor extends Component{
 
 
                 <Grid item xs={12}>
-                  
-                  <Button variant='warning'  size='large'>
+                  <ProgressContainer show={this.state.salvandoDados}/>
+                  <Button variant='warning'  size='large' onClick={() => {
+                    window.location.href= '/empreendedores';
+                  }}>
                     Cancelar
                   </Button>
                   <Button type='submit' variant='contained' size='large' onClick={()=> onClickCadastrar()}>
                     Cadastrar
                   </Button>
-                  <ProgressContainer show={this.state.salvandoDados}/>
+                  
                 </Grid>
               </Grid>
             </form>
