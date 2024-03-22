@@ -169,7 +169,7 @@ function LinhasEmpreenderoresTable (props){
     setExcluindo(true);
     axios({
           method: 'post',
-          url:  SERVICES_CONTEXT + '/empreendedorservice/removerEmpreendedor?idEmpreendedor=' + empreendedor.id+ '&idPatrocinador=' + idPatrocinador,
+          url:  SERVICES_CONTEXT + '/empreendedorservice/removerEmpreendedor?idEmpreendedor=' + empreendedor.idEmpreendedor+ '&idPatrocinador=' + idPatrocinador,
           withCredentials: false,
           
 
