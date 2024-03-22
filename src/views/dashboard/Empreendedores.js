@@ -157,9 +157,7 @@ function LinhasEmpreenderoresTable (props){
     
   }
   const confirmaExclusao=(empreendedor) =>{
-    axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
-    axios.defaults.headers.post['Access-Control-Allow-Methods']='GET,POST';
-
+  
     console.log('confirmaExclusao');
     var user = sessionStorage.getItem('loggedUser');
     if(user != null){
