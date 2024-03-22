@@ -212,7 +212,7 @@ console.log('componentDidMount');
       var usuarioLogado = JSON.parse(user);
       axios({
           method: 'get',
-          url: SERVICES_CONTEXT+ '/api/empreendedorservice/carregarResumoRelatorioDeEstudos?idEmpreendedor='+idEmpreendedor  +'&idCurso=2&idPatrocinador='+ usuarioLogado.idEmpreendedor ,
+          url: SERVICES_CONTEXT+ '/empreendedorservice/carregarResumoRelatorioDeEstudos?idEmpreendedor='+idEmpreendedor  +'&idCurso=2&idPatrocinador='+ usuarioLogado.idEmpreendedor ,
           withCredentials: false,
         }
       ).then(function (response) {
