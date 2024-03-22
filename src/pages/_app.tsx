@@ -61,12 +61,12 @@ const App = (props: ExtendedAppProps) => {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>{`${themeConfig.templateName} - Material Design React Admin Template`}</title>
+        <title>{`${themeConfig.templateName} - Gestão de acessos ao EAD`}</title>
         <meta
           name='description'
-          content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
+          content={`${themeConfig.templateName} – Sistema para cadastro, gestão e liberação de acessos aos empreendores ao EAD de formação de novos distribuidores Royal Prestige.`}
         />
-        <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
+        <meta name='keywords' content='Royal Prestige, Migra Master, Cozinha Efetiva, EAD' />
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
 
