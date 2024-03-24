@@ -75,7 +75,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
       email: '',  
       celular: '',
       codigoEmpreendedor : '', 
-      codigoDistribuicao: '', 
+      codigoDistribuicao: 0, 
       nomeDistribuicao: '', 
       podeCadastrarRecrutas: true,
       showErrorNome: false, 
