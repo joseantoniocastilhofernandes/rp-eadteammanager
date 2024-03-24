@@ -75,7 +75,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
       email: '',  
       celular: '',
       codigoEmpreendedor : '', 
-      codigoDistribuicao: 0, 
+      codigoDistribuicao: '', 
       nomeDistribuicao: '', 
       podeCadastrarRecrutas: true,
       showErrorNome: false, 
@@ -119,7 +119,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
             "sobrenome" : this.state.sobrenome,
             "email": this.state.email,
             "celular": this.state.celular,
-            "codigoDistribuicao": this.state.codigoDistribuicao,
+            "codigoDistribuicao": this.state.codigoDistribuicao == ''? 0: this.state.codigoDistribuicao,
             "nomeDistribuicao": this.state.nomeDistribuicao,
             "codigoEmpreendedor": this.state.codigoEmpreendedor
         }
