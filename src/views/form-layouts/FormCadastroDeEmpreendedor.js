@@ -439,6 +439,9 @@ EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COM_CODIGODEDISTRIBUICAO
           this.setState({  [prop]: event.target.value, showErrorCelular: false, msgErrorCelular: '' })  
       }if(prop === 'codigoEmpreendedor'){
           this.setState({  [prop]: event.target.value.toUpperCase(), showErrorCodigoEmpreendedor: false, msgErrorCodigoEmpreendedor: '' })  
+      } if(prop == 'podeCadastrarRecrutas'){
+        
+        this.setState({  podeCadastrarRecrutas: !this.state.podeCadastrarRecrutas})  
       } else {
         this.setState({ [prop]: event.target.value })
       }
@@ -665,7 +668,7 @@ EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COM_CODIGODEDISTRIBUICAO
                   <Checkbox
                     label='Pode cadastrar recrutas?'
                     placeholder='Sim'
-                    defaultChecked 
+                     
                     onChange={handleChange('podeCadastrarRecrutas')} 
                     checked={this.state.podeCadastrarRecrutas}
         
