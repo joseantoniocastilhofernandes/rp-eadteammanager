@@ -145,7 +145,7 @@ function RelatorioDeAulasConcluidas(props) {
                     return(
                       <div>
                         <Typography variant="h6" component="span">
-                          {modulo.nome}  
+                          MÓDULO {modulo.nome}  
                         </Typography>
                         <AulasAssistidas aulas={modulo.aulasConcluidas}/>
                       </div>
