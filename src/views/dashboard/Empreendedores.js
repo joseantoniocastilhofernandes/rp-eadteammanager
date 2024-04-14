@@ -317,6 +317,7 @@ const handleCloseModalExcluir = () => {
             <TableRow>
               <StyledTableCell>Nome</StyledTableCell>
               <StyledTableCell>Pode Recrutar?</StyledTableCell>
+              <StyledTableCell>Qtde Diretos Cadastrados</StyledTableCell>
               <StyledTableCell>Dt. cadastro</StyledTableCell>
               <StyledTableCell>Ult Acesso</StyledTableCell>
               <StyledTableCell>Ação</StyledTableCell>
@@ -332,6 +333,7 @@ const handleCloseModalExcluir = () => {
                   </Box>
                 </TableCell>
                 <TableCell>{row.podeRecrutar? 'Sim': 'Não'}</TableCell>
+                <TableCell>{row.qtdDiretosCadastrados}</TableCell>
                 <TableCell>{row.dtCadastro}</TableCell>
                 <TableCell>{row.dhUltimoAcesso}</TableCell>
                 <TableCell>

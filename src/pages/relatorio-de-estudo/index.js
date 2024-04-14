@@ -28,6 +28,23 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 
+import Timeline from '@mui/lab/Timeline';
+import TimelineItem from '@mui/lab/TimelineItem';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
+import TimelineDot from '@mui/lab/TimelineDot';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import LaptopMacIcon from '@mui/icons-material/LaptopMac';
+import HotelIcon from '@mui/icons-material/Hotel';
+import RepeatIcon from '@mui/icons-material/Repeat';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import FlagIcon from '@mui/icons-material/Flag';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+
+
 import {SERVICES_CONTEXT} from 'src/@core/constants/constants.js'
 
 
@@ -69,6 +86,113 @@ function Aprovado(props){
   }else{
       return <Box/>;
   }
+}
+
+function AulasAssistidas(props){
+  var aulas = props.aulas;
+  console.log('Aulas ' + aulas);
+  const aulasAssistidas = (
+          <div>
+            {aulas.map((aula) =>
+              <Typography >
+                  {aula.nome} {aula.hrConclusao}
+              </Typography>
+            )}
+          </div>
+  );
+  return aulasAssistidas
+  
+}
+
+function RelatorioDeAulasConcluidas(props) {
+  var reportData = props.reportData;
+  var reportAulasConcluidas = reportData.relatorioDeAulasConcluidas;
+  var datasDosModulosAssistidosKeys = Object.keys(reportAulasConcluidas.modulosAssistidosPorData);
+
+  const timelineitems = (
+      <Timeline position="alternate" >
+          <TimelineItem>
+            <TimelineSeparator>
+              <TimelineDot color="success">
+
+                <CheckCircleIcon />
+              </TimelineDot>
+              <TimelineConnector/>
+                
+            </TimelineSeparator>
+            <TimelineContent sx={{ py: '12px', px: 2 }}/>
+          </TimelineItem>
+
+          {datasDosModulosAssistidosKeys.map((data) =>
+          <TimelineItem key={data}>
+
+            <TimelineOppositeContent sx={{ m: 'auto 0' }}   align="right" variant="body2" color="text.secondary">
+               {data}
+            </TimelineOppositeContent>
+          
+               <TimelineSeparator>
+                <TimelineConnector />
+                <TimelineDot color="primary">
+                    <CalendarTodayIcon/>
+                </TimelineDot>
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent sx={{ py: '12px', px: 2 }}>
+
+                   {reportAulasConcluidas.modulosAssistidosPorData[data].map((modulo) => {
+
+                    return(
+                      <div>
+                        <Typography variant="h6" component="span">
+                          {modulo.nome}  
+                        </Typography>
+                        <AulasAssistidas aulas={modulo.aulasConcluidas}/>
+                      </div>
+                      )
+                    }
+                  
+
+                   )}
+
+              
+              
+              </TimelineContent>
+          </TimelineItem>
+          )}
+           <TimelineItem>
+              <TimelineSeparator>
+                <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
+                <TimelineDot color="warning">
+                  <FlagIcon />
+                </TimelineDot>
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent sx={{ py: '12px', px: 2 }}>
+                <Typography variant="h6" component="span">
+                  Iniciou os estudos em {(props.reportData.dhInicioEstudosNoCurso)} 
+                </Typography>
+              </TimelineContent>
+            </TimelineItem>
+      </Timeline>
+  );
+
+  console.log('reportAulasConcluidas.modulosAssistidosPorData JSON\n' + JSON.stringify(reportAulasConcluidas.modulosAssistidosPorData));
+  console.log('reportAulasConcluidas.modulosAssistidosPorData JSON KEYS\n' + Object.keys(reportAulasConcluidas.modulosAssistidosPorData));
+  console.log('\nreportAulasConcluidas.modulosAssistidosPorData.length: ' + reportAulasConcluidas.modulosAssistidosPorData.length);
+  return (
+<Container >
+   <Card >
+      <CardContent>        
+          <Typography variant="h6" component="span"> 
+              <center>
+              Registro de atividades do empreendedor no curso
+              </center>
+          </Typography>
+          {timelineitems}
+      </CardContent>
+    </Card>
+    </Container>
+  );
 }
 
 function RelatorioDeEstudosDoEmpreendedor (props){
@@ -128,7 +252,7 @@ function RelatorioDeEstudosDoEmpreendedor (props){
                           <Table sx={{ minWidth: 650 }} aria-label='customized table'>
                           <TableHead>
                             <TableRow>
-                              <StyledTableCell>Módulo</StyledTableCell>
+                              <StyledTableCell>Prova</StyledTableCell>
                               <StyledTableCell align='center'>N° de tentativas</StyledTableCell>
                               <StyledTableCell align='center'>Maior Nota</StyledTableCell>
                               <StyledTableCell align='center'>Dh Ultima Tentativa</StyledTableCell>
@@ -171,7 +295,7 @@ function RelatorioDeEstudosDoEmpreendedor (props){
                   </CardContent>
                 </Card>
           </Box>
-         
+         <RelatorioDeAulasConcluidas reportData={reportData} />
       </Container>
       )
     }
