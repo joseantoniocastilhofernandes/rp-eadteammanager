@@ -43,6 +43,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import FlagIcon from '@mui/icons-material/Flag';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import WarningIcon from '@mui/icons-material/Warning';
 
 
 import {SERVICES_CONTEXT} from 'src/@core/constants/constants.js'
@@ -169,6 +170,7 @@ function RelatorioDeAulasConcluidas(props) {
               </TimelineSeparator>
               <TimelineContent sx={{ py: '12px', px: 2 }}>
                 <Typography variant="h6" component="span">
+
                   Iniciou os estudos em {(props.reportData.dhInicioEstudosNoCurso)} 
                 </Typography>
               </TimelineContent>
@@ -183,12 +185,27 @@ function RelatorioDeAulasConcluidas(props) {
 <Container >
    <Card >
       <CardContent>        
-          <Typography variant="h6" component="span"> 
+         
+          {  datasDosModulosAssistidosKeys.length == 0? 
+          (
+            <Typography variant="h6" component="span" sx={{ mt: 5 }}> 
               <center>
-              Registro de atividades do empreendedor no curso
+              <WarningIcon color="warning"/> Ops, ele ainda não começou a estudar!
               </center>
-          </Typography>
-          {timelineitems}
+            </Typography>
+          )
+          : 
+          (
+            <div>
+              <Typography variant="h6" component="span"> 
+                <center>
+                Registro de atividades do empreendedor no curso
+                </center>
+              </Typography>
+              {timelineitems}
+            </div>
+          )}
+          
       </CardContent>
     </Card>
     </Container>
