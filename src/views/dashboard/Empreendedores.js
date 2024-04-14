@@ -20,6 +20,7 @@ import CardContent from '@mui/material/CardContent'
 import Alert from '@mui/material/Alert'
 import Stack from '@mui/material/Stack'
 import CheckIcon from '@mui/icons-material/Check'
+
 import Table from '@mui/material/Table'
 import { styled } from '@mui/material/styles'
 import { tableCellClasses } from '@mui/material/TableCell'
@@ -316,11 +317,11 @@ const handleCloseModalExcluir = () => {
           <TableHead>
             <TableRow>
               <StyledTableCell>Nome</StyledTableCell>
-              <StyledTableCell>Pode Recrutar?</StyledTableCell>
-              <StyledTableCell>Qtde Diretos Cadastrados</StyledTableCell>
-              <StyledTableCell>Dt. cadastro</StyledTableCell>
-              <StyledTableCell>Ult Acesso</StyledTableCell>
-              <StyledTableCell>Ação</StyledTableCell>
+              <StyledTableCell sx={{alignContent: 'center', textAlign: 'center'}}>Pode Recrutar?</StyledTableCell>
+              <StyledTableCell sx={{alignContent: 'center', textAlign: 'center'}}>Qtde Diretos Cadastrados</StyledTableCell>
+              <StyledTableCell sx={{alignContent: 'center', textAlign: 'center'}}>Dt. cadastro</StyledTableCell>
+              <StyledTableCell sx={{alignContent: 'center', textAlign: 'center'}}>Ult Acesso</StyledTableCell>
+              <StyledTableCell sx={{alignContent: 'center', textAlign: 'center'}}>Ação</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -332,11 +333,22 @@ const handleCloseModalExcluir = () => {
                     <Typography variant='caption'>{row.email}</Typography>
                   </Box>
                 </TableCell>
-                <TableCell>{row.podeRecrutar? 'Sim': 'Não'}</TableCell>
-                <TableCell>{row.qtdDiretosCadastrados}</TableCell>
-                <TableCell>{row.dtCadastro}</TableCell>
-                <TableCell>{row.dhUltimoAcesso}</TableCell>
-                <TableCell>
+                <TableCell sx={{alignContent: 'center', textAlign: 'center'}}>{row.podeRecrutar? 'Sim': 'Não'}</TableCell>
+                <TableCell sx={{alignContent: 'center', textAlign: 'center'}}>{row.qtdDiretosCadastrados}</TableCell>
+                <TableCell sx={{alignContent: 'center', textAlign: 'center'}}>{row.dtCadastro}</TableCell>
+                <TableCell sx={{alignContent: 'center', textAlign: 'center'}}>
+                  {row.dhUltimoAcesso != null ? 
+                    row.dhUltimoAcesso: 
+                    (
+
+                       <Typography variant="body2"> 
+                         Ainda não acessou
+                       </Typography>
+                  
+                    )
+                  }
+                  </TableCell>
+                <TableCell sx={{alignContent: 'center', textAlign: 'center'}}>
                   <Tooltip title="Visualizar relatório de estudos do empreendedor">
                     <IconButton>
                       <Link onClick={()=> abrirRelatorioDeEstudosDoEmpreendedor(row.idEmpreendedor)}>
