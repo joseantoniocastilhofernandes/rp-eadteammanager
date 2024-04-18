@@ -1,7 +1,7 @@
 
 import React, { Component, useState , useEffect} from 'react';
 import axios from 'axios'
-import {SERVICES_CONTEXT} from 'src/@core/constants/constants.js'
+import {SERVICES_CONTEXT, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
 // ** MUI Imports
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
@@ -40,6 +40,9 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 
 import BusinessIcon from '@mui/icons-material/Business'
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
+
 
 var showForm = true;
 
@@ -91,6 +94,7 @@ export default class FormCadastroDeEmpreendedor extends Component{
 
   
   componentDidMount() {
+     mixpanel.init(MIXPANEL_TOKEN);
       this.setState({showSucessMessage: false});
     console.log('componentDidMount');
   }
@@ -301,6 +305,7 @@ EMPREENDEDORSERVICE_JA_EXISTE_EMREENDEDOR_CADASTRADO_COM_CODIGODEDISTRIBUICAO
                      // $scope.password = '';
                     //  $rootScope.user = response.data.result.user;
                     //mostrar mensagem de sucesso  
+                      mixpanel.track('Cadastrou Novo Empreendedor');
                       mostrarMensagemDeSucesso();
 
                   }

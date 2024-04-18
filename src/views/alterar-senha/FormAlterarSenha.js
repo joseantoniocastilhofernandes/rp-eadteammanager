@@ -31,7 +31,11 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography'
 
 import React, { Component, useState , useEffect} from 'react';
-import {SERVICES_CONTEXT} from 'src/@core/constants/constants.js'
+
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
+
+import {SERVICES_CONTEXT, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
 
 function ShowSuccessMessage(props){
   if(props.salvandoDados){
@@ -82,7 +86,7 @@ class FormAlterarSenha extends Component {
   }
 }
 componentDidMount() {
-
+  mixpanel.init(MIXPANEL_TOKEN);
      var loggedUser = sessionStorage.getItem('loggedUser');
      if(loggedUser != null){
       loggedUser = JSON.parse(loggedUser);
@@ -211,6 +215,7 @@ componentDidMount() {
                     //
                       
                       console.log('sem erros');
+                      mixpanel.track('Alterou Senha de Acesso');
                       showSucessMessage();
                    
                       //LoggedUserService.setLoggedUser($rootScope.user);

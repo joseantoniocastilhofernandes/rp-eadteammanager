@@ -40,7 +40,9 @@ import themeConfig from 'src/configs/themeConfig'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import {SERVICES_CONTEXT, setLoggedUser} from 'src/@core/constants/constants.js'
+import {SERVICES_CONTEXT, setLoggedUser, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
@@ -151,6 +153,7 @@ class LoginPage extends Component{
     }
 
     componentDidMount() {
+      mixpanel.init(MIXPANEL_TOKEN);
       console.log('componentDidMount');
       var user = sessionStorage.getItem('loggedUser');
       console.log('Obtendo Usuario logado do sessionStorage ' + user );
@@ -225,6 +228,7 @@ class LoginPage extends Component{
                 }
               }
             }else{  
+                mixpanel.track('LembrarSenhaEvent_LembreteDeSenhaEnviado');
                 lembreteDeSenhaEnviado();  
             }
 

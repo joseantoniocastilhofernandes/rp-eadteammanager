@@ -40,12 +40,13 @@ import themeConfig from 'src/configs/themeConfig'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import {SERVICES_CONTEXT, setLoggedUser} from 'src/@core/constants/constants.js'
+import {SERVICES_CONTEXT, setLoggedUser, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
 
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
-
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 
  
 
@@ -111,13 +112,17 @@ class LoginPage extends Component{
 
     componentDidMount() {
       console.log('componentDidMount');
+      mixpanel.init(MIXPANEL_TOKEN);
+
       var user = sessionStorage.getItem('loggedUser');
       console.log('Obtendo Usuario logado do sessionStorage ' + user );
       if(user != null){
+          
            window.location.href = "/empreendedores";
       }else{
         console.log('Usuário ainda nao logado');
       }
+      mixpanel.track('LoginPage_viewed');
     }
     render(){
 
@@ -202,8 +207,12 @@ class LoginPage extends Component{
               //  $rootScope.user = response.data.result.user;
                 var usuarioLogado = jsonResponse.user;
                 setLoggedUser(usuarioLogado);
+              
                 sessionStorage.setItem('loggedUser', JSON.stringify(usuarioLogado));
-                
+                mixpanel.identify(usuarioLogado.idUsuario);
+                mixpanel.track('LoginPage_userloged_successfully');
+                mixpanel.people.set({ "first_name": usuarioLogado.nomeCompleto, "Email": usuarioLogado.email, "idEmpreendedor": usuarioLogado.idEmpreendedor });
+           
                 console.log('Usuario adicionado no sessionStorage ' +JSON.stringify(usuarioLogado) );
                 //LoggedUserService.setLoggedUser($rootScope.user);
               

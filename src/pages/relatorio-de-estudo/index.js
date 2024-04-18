@@ -46,7 +46,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import WarningIcon from '@mui/icons-material/Warning';
 
 
-import {SERVICES_CONTEXT} from 'src/@core/constants/constants.js'
+import {SERVICES_CONTEXT, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 
 
 
@@ -334,6 +336,7 @@ class MUITable extends Component{
   }
 
   componentDidMount() {
+      mixpanel.init(MIXPANEL_TOKEN);
       const setReportData = (e)=>{
         this.setState({ ...this.state, reportData: e, loadingReport: false, permissaoDeAcesso: true}); 
       }
@@ -375,6 +378,7 @@ console.log('componentDidMount');
             }else{
                 console.log('sem erros');
                 reportData = jsonResponse;
+                mixpanel.track('Empreendedor_RelatorioDeAndamentoDeEstudosDoEmpreendedor_viewed');
                 setReportData(reportData);                  
                 console.log('Empreendedores: ' + reportData);
             }

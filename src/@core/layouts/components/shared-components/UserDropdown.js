@@ -24,7 +24,9 @@ import LogoutVariant from 'mdi-material-ui/LogoutVariant'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import MessageOutline from 'mdi-material-ui/MessageOutline'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
-import {SERVICES_CONTEXT} from 'src/@core/constants/constants.js'
+import {SERVICES_CONTEXT, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -48,6 +50,7 @@ class UserDropdown extends Component{
  
   }
   componentDidMount(){
+      mixpanel.init(MIXPANEL_TOKEN);
         var user = sessionStorage.getItem('loggedUser');
         if(user != null){
           user = JSON.parse(user);
@@ -76,6 +79,8 @@ class UserDropdown extends Component{
   }
   const logout = () =>{
       sessionStorage.removeItem('loggedUser');
+      mixpanel.track('Logout');
+      mixpanel.reset();
       window.location.href = "/";
   }
   const handleDropdownClose = (url) => {

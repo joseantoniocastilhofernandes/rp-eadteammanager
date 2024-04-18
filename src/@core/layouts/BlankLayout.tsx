@@ -1,6 +1,9 @@
 // ** MUI Imports
 import { styled } from '@mui/material/styles'
 import Box, { BoxProps } from '@mui/material/Box'
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
+import {MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
 
 // ** Types
 import { BlankLayoutProps } from './types'
@@ -28,6 +31,7 @@ const BlankLayoutWrapper = styled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 const BlankLayout = ({ children }: BlankLayoutProps) => {
+  mixpanel.init(MIXPANEL_TOKEN);
   return (
     <BlankLayoutWrapper className='layout-wrapper'>
       <Box className='app-content' sx={{ minHeight: '100vh', overflowX: 'hidden', position: 'relative' }}>
