@@ -76,7 +76,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 const ccyFormat = (num) => {
-  if(num){
+ if(  !Number.isInteger(num)  && num > 0){
     return `${num.toFixed(2)}`  
   }else return 0;
   
