@@ -185,11 +185,11 @@ export default class FormCadastroDeEmpreendedor extends Component{
         hasFormErrors = true;
         this.setState({showErrorCelular: true, msgErrorCelular: 'Por favor preencha o celular' });      
       }
-
+/*
       if(this.state.codigoEmpreendedor.length  === 0){
         hasFormErrors = true;
         this.setState({showErrorCodigoEmpreendedor: true, msgErrorCodigoEmpreendedor: 'Por favor preencha o código do empreendedor' });      
-      }
+      }*/
       if(!hasFormErrors){
           //chamar o serviço
         var dadosParaCadastro = getDadosParaCadastro(); //dados em formato json
