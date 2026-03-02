@@ -1,10 +1,5 @@
-// ** React Imports
-import { useState, SyntheticEvent, Fragment, ChangeEvent, Component, MouseEvent, ReactNode } from 'react'
+import { useState, Fragment } from 'react'
 
-// ** Next Import
-import { useRouter } from 'next/router'
-
-// ** MUI Imports
 import Box from '@mui/material/Box'
 import Menu from '@mui/material/Menu'
 import Badge from '@mui/material/Badge'
@@ -14,21 +9,12 @@ import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
-// ** Icons Imports
-import CogOutline from 'mdi-material-ui/CogOutline'
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd'
-import KeyIcon from '@mui/icons-material/Key'
 import GroupsIcon from '@mui/icons-material/Groups'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
 import LogoutVariant from 'mdi-material-ui/LogoutVariant'
-import AccountOutline from 'mdi-material-ui/AccountOutline'
-import MessageOutline from 'mdi-material-ui/MessageOutline'
-import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
-import {SERVICES_CONTEXT, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
-import mixpanel from 'mixpanel-browser';
-import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 
-// ** Styled Components
+import { MIXPANEL_TOKEN } from 'src/@core/constants/constants.js'
+import mixpanel from 'mixpanel-browser'
+
 const BadgeContentSpan = styled('span')(({ theme }) => ({
   width: 8,
   height: 8,
@@ -37,91 +23,54 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   boxShadow: `0 0 0 2px ${theme.palette.background.paper}`
 }))
 
-class UserDropdown extends Component{
-  constructor(props){
-   super(props);
-   console.log('UserDropdown.props' + JSON.stringify(props));
-  // ** States
-   this.state = {
-            anchorEL: props.anchor,
-            usuarioLogado: null,
-            nomeUsuario: 'Não logado'
-        };
- 
-  }
-  componentDidMount(){
-      mixpanel.init(MIXPANEL_TOKEN);
-        var user = sessionStorage.getItem('loggedUser');
-        if(user != null){
-          user = JSON.parse(user);
-          console.log('componentDidMount sessionStorageloggedUser:' + sessionStorage.getItem('loggedUser'));
-       //   this.setState({ ...this.state,  'nomeUsuario': user.nomeCompleto, 'usuarioLogado': user }) ;
-        }
-        
-  }
-  render(){
+const UserDropdown = () => {
+  const [anchorEl, setAnchorEl] = useState(null)
 
- 
+  const user = (() => {
+    try {
+      const s = sessionStorage.getItem('loggedUser')
 
+      return s ? JSON.parse(s) : null
+    } catch {
+      return null
+    }
+  })()
 
-  const handleDropdownOpen = (event) => {
-    console.log('handleDropdownOpen' + sessionStorage.getItem('loggedUser'));
-
-    var user = JSON.parse(sessionStorage.getItem('loggedUser'));
-    this.setState({ ...this.state,  'anchorEL': event.currentTarget, 'nomeUsuario': user.nomeCompleto, 'usuarioLogado': user }) ;
-  
-  }
-  const alterarSenha= () =>{
-    window.location.href = '/alterar-senha';    
-  }
-   const verEquipe= () =>{
-    window.location.href = '/empreendedores';    
-  }
-  const logout = () =>{
-      sessionStorage.removeItem('loggedUser');
-      mixpanel.track('Logout');
-      mixpanel.reset();
-      window.location.href = "/";
-  }
-  const handleDropdownClose = (url) => {
-    
-     this.setState({ ...this.state,  'anchorEL': null }) ;
-  }
+  const nomeCompleto = user?.nomeCompleto || 'Usuário'
 
   const styles = {
-    py: 2,
-    px: 4,
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    color: 'text.primary',
-    textDecoration: 'none',
-    '& svg': {
-      fontSize: '1.375rem',
-      color: 'text.secondary'
-    }
+    py: 2, px: 4, width: '100%',
+    display: 'flex', alignItems: 'center',
+    color: 'text.primary', textDecoration: 'none',
+    '& svg': { fontSize: '1.375rem', color: 'text.secondary' }
   }
-  
+
+  const logout = () => {
+    mixpanel.init(MIXPANEL_TOKEN)
+    mixpanel.track('Logout')
+    mixpanel.reset()
+    sessionStorage.removeItem('loggedUser')
+    window.location.href = '/'
+  }
+
   return (
     <Fragment>
       <Badge
         overlap='circular'
-        onClick={handleDropdownOpen}
+        onClick={e => setAnchorEl(e.currentTarget)}
         sx={{ ml: 2, cursor: 'pointer' }}
         badgeContent={<BadgeContentSpan />}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Avatar
-          alt='John Doe'
-          onClick={handleDropdownOpen}
-          sx={{ width: 40, height: 40 }}
-          src='/images/avatars/1.png'
-        />
+        <Avatar alt={nomeCompleto} sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}>
+          {nomeCompleto.charAt(0).toUpperCase()}
+        </Avatar>
       </Badge>
+
       <Menu
-        anchorEl={this.state.anchorEL}
-        open={Boolean(this.state.anchorEL)}
-        onClose={() => handleDropdownClose()}
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
         sx={{ '& .MuiMenu-paper': { width: 230, marginTop: 4 } }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -133,33 +82,31 @@ class UserDropdown extends Component{
               badgeContent={<BadgeContentSpan />}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
-              <Avatar alt={this.state.nomeUsuario} src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} >
+              <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}>
+                {nomeCompleto.charAt(0).toUpperCase()}
               </Avatar>
             </Badge>
-            <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>{this.state.nomeUsuario} </Typography>
+            <Box sx={{ ml: 3 }}>
+              <Typography sx={{ fontWeight: 600 }}>{nomeCompleto}</Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                Admin
+                {user?.idNivelDeAcesso >= 6 ? 'Administrador' : 'Líder'}
               </Typography>
             </Box>
           </Box>
         </Box>
+
         <Divider sx={{ mt: 0, mb: 1 }} />
 
-        <MenuItem sx={{ p: 0 }} onClick={() => verEquipe()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => { window.location.href = '/empreendedores'; setAnchorEl(null) }}>
           <Box sx={styles}>
             <GroupsIcon sx={{ marginRight: 2 }} />
             Minha equipe
           </Box>
-        </MenuItem>     
-        <MenuItem sx={{ p: 0 }} onClick={() => alterarSenha()}>
-          <Box sx={styles}>
-            <KeyIcon sx={{ marginRight: 2 }} />
-            Alterar Senha
-          </Box>
         </MenuItem>
+
         <Divider />
-        <MenuItem sx={{ py: 2 }} onClick={() => logout()}>
+
+        <MenuItem sx={{ py: 2 }} onClick={logout}>
           <LogoutVariant sx={{ marginRight: 2, fontSize: '1.375rem', color: 'text.secondary' }} />
           Sair
         </MenuItem>
@@ -167,5 +114,5 @@ class UserDropdown extends Component{
     </Fragment>
   )
 }
-} //fim render
+
 export default UserDropdown

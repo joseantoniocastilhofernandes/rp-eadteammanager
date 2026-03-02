@@ -1,345 +1,178 @@
-// ** React Imports
-import { ChangeEvent, Component, MouseEvent, ReactNode, useState } from 'react'
-
-// ** Next Imports
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
-// ** MUI Components
+
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
-import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
-
 import CardContent from '@mui/material/CardContent'
 import Alert from '@mui/material/Alert'
-import LinearProgress from '@mui/material/LinearProgress';
+import LinearProgress from '@mui/material/LinearProgress'
 import Stack from '@mui/material/Stack'
-
-import OutlinedInput from '@mui/material/OutlinedInput'
-import { styled, useTheme } from '@mui/material/styles'
-import MuiCard from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
-import MuiFormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
+import { styled } from '@mui/material/styles'
+import MuiCard from '@mui/material/Card'
 
-// ** Icons Imports
-import Google from 'mdi-material-ui/Google'
-import Github from 'mdi-material-ui/Github'
-import Twitter from 'mdi-material-ui/Twitter'
-import Facebook from 'mdi-material-ui/Facebook'
-import EyeOutline from 'mdi-material-ui/EyeOutline'
-import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
-import IconButton from '@mui/material/IconButton'
+import EmailOutline from 'mdi-material-ui/EmailOutline'
+import KeyOutline from 'mdi-material-ui/KeyOutline'
 
-// ** Configs
-import themeConfig from 'src/configs/themeConfig'
-
-// ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import {SERVICES_CONTEXT, setLoggedUser, MIXPANEL_TOKEN} from 'src/@core/constants/constants.js'
-
-// ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
+import { SERVICES_CONTEXT, setLoggedUser, MIXPANEL_TOKEN } from 'src/@core/constants/constants.js'
+import mixpanel from 'mixpanel-browser'
 
-import mixpanel from 'mixpanel-browser';
-import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
-
- 
-
-// ** Styled Components
 const Card = styled(MuiCard)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: { width: '28rem' }
 }))
 
-const LinkStyled = styled('a')(({ theme }) => ({
-  fontSize: '0.875rem',
-  textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
-
-const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
-  '& .MuiFormControlLabel-label': {
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary
-  }
-}))
-
-function ErrorMessageContainer (props){
-    if (props.show){
-        return (
-            <Stack sx={{ width: '100%', marginBottom: '10px' }} spacing={2}>
-                <Alert severity="error">{props.message}</Alert>
-            </Stack>
-        )
-    }
-    return null
+const MSGS_ERRO = {
+  OTP_INVALIDO:                 'Código inválido. Verifique e tente novamente.',
+  OTP_EXPIRADO:                 'Código expirado. Solicite um novo.',
+  OTP_MAX_TENTATIVAS:           'Muitas tentativas incorretas. Solicite um novo código.',
+  LOGINERROR_USUARIO_BLOQUEADO: 'Usuário bloqueado. Entre em contato com o seu patrocinador.',
+  EMAIL_NAO_CADASTRADO:         'Este e-mail não está cadastrado no sistema.',
+  RATE_LIMIT:                   'Muitas tentativas. Aguarde alguns minutos.',
+  ERRO_INTERNO:                 'Erro interno. Tente novamente em instantes.',
 }
 
-function LoginProgressContainer (props){
-    if (props.show){
-        return (
-            <Stack sx={{ width: '100%', marginBottom: '10px' }} spacing={2}>
-                <LinearProgress />
-                <Typography variant='body1' sx={{ fontWeight: 300, marginBottom: 1.5, textAlign: 'center' }}>
-                    Validando suas credenciais de acesso
-              </Typography>
-            </Stack>
-        )
-    }
-    return null
-}
+const LoginPage = () => {
+  const [etapa, setEtapa] = useState('email')
+  const [email, setEmail] = useState('')
+  const [codigo, setCodigo] = useState('')
+  const [carregando, setCarregando] = useState(false)
+  const [erro, setErro] = useState(null)
+  const [emailErro, setEmailErro] = useState(false)
+  const [reenvioSegundos, setReenvioSegundos] = useState(0)
 
+  useEffect(() => {
+    mixpanel.init(MIXPANEL_TOKEN)
+    mixpanel.track('LoginPage_viewed')
+    const user = sessionStorage.getItem('loggedUser')
+    if (user) window.location.href = '/empreendedores'
+  }, [])
 
+  useEffect(() => {
+    if (reenvioSegundos <= 0) return
+    const t = setTimeout(() => setReenvioSegundos(s => s - 1), 1000)
 
-class LoginPage extends Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            password: '',
-            email: '',
-            showErrorMessage: false,
-            showPassword: false,
-            showEmailError : false,
-            showPasswordError: false,
-            errorMessage: '',
-            doingLogin : false,
-        };
-    }
+    return () => clearTimeout(t)
+  }, [reenvioSegundos])
 
-    componentDidMount() {
-      console.log('componentDidMount');
-      mixpanel.init(MIXPANEL_TOKEN);
-
-      var user = sessionStorage.getItem('loggedUser');
-      console.log('Obtendo Usuario logado do sessionStorage ' + user );
-      if(user != null){
-          
-           window.location.href = "/empreendedores";
-      }else{
-        console.log('Usuário ainda nao logado');
+  const solicitarOTP = async () => {
+    const emailNorm = email.trim().toLowerCase()
+    if (!emailNorm) { setEmailErro(true); setErro('Informe seu e-mail.'); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNorm)) { setEmailErro(true); setErro('E-mail inválido.'); return }
+    setEmailErro(false); setErro(null); setCarregando(true)
+    try {
+      const { data } = await axios.post(`${SERVICES_CONTEXT}/otp/solicitar`, { email: emailNorm })
+      if (data.result?.error) {
+        setErro(MSGS_ERRO[data.result.errorCodes?.[0]] || MSGS_ERRO.ERRO_INTERNO)
+      } else {
+        setEtapa('otp')
+        setReenvioSegundos(60)
       }
-      mixpanel.track('LoginPage_viewed');
-    }
-    render(){
+    } catch { setErro(MSGS_ERRO.ERRO_INTERNO) }
+    finally { setCarregando(false) }
+  }
 
-    const handleChange = (prop) => (event) => {
-     
-      this.setState({ ...this.state, [prop]: event.target.value });
-    }
-
-    const atualizarStatus = (doingLogin, showErrorMessage, showEmailError, showPasswordError, errorMessage)=>{
-     this.setState({ ...this.state,  'doingLogin': doingLogin, 'showErrorMessage': showErrorMessage, 'showEmailError': showEmailError, 'showPasswordError': showPasswordError, 'errorMessage': errorMessage  }) ;
-    }
-
-    const showMsgErroSenha= (message)=>{
-        this.setState({ ...this.state, doingLogin : false, showErrorMessage:true, showEmailError: false, showPasswordError: true, errorMessage: message });  
-    }
-
-    const acessar = ()=>{
-    var _email = this.state.email.trim();
-    var _senha = this.state.password.trim();
-
-    //verifica se o email foi preenchido
-    if(_email == ''){
-        this.setState({ ...this.state, showErrorMessage: true, showEmailError: true, showPasswordError: false, errorMessage: 'Por favor preencha o seu email!' });       
-        return;
-    }
-
-    //verifica se a senha foi preenchida
-    if(_senha == ''){
-        this.setState({ ...this.state, showErrorMessage: true, showEmailError: false, showPasswordError: true, errorMessage: 'Por favor preencha a sua senha!' });       
-        return;
-    }
-
-
-    
-    this.setState({ ...this.state, showErrorMessage: false, showEmailError: false, showPasswordError: false, doingLogin : true });       
-
-    axios({
-          method: 'post',
-          url:  SERVICES_CONTEXT + '/loginservice/doLogin?email=' + _email + '&password=' + _senha,
-          withCredentials: false,
+  const verificarOTP = async () => {
+    if (!codigo.trim()) { setErro('Informe o código recebido por e-mail.'); return }
+    setErro(null); setCarregando(true)
+    try {
+      const { data } = await axios.post(`${SERVICES_CONTEXT}/otp/verificar`, {
+        email: email.trim().toLowerCase(),
+        codigo: codigo.trim(),
+      })
+      if (data.result?.error) {
+        const cod = data.result.errorCodes?.[0]
+        setErro(MSGS_ERRO[cod] || MSGS_ERRO.ERRO_INTERNO)
+        if (cod === 'OTP_EXPIRADO' || cod === 'OTP_MAX_TENTATIVAS') {
+          setTimeout(() => { setEtapa('email'); setCodigo(''); setErro(null) }, 2500)
         }
-      ).then(function (response) {
-         //this.setState({ ...this.state, showErrorMessage: false, showEmailError: false, showPasswordError: false, doingLogin : false });   
-         console.log('Response Status: ' + response.status);
-         console.log('Response data: '+ response.data);
-         var resultJon = JSON.stringify(response.data) ;
-         var jsonResponse =response.data;
-         console.log(resultJon);
-
-         if(resultJon != null){
-            var hasError =jsonResponse.error;
-            var errorList = jsonResponse.errorCodes;
-            if(hasError){
-              console.log('com erros');
-              console.log(errorList);
-              for (var int = 0; int < errorList.length; int++) {
-                var codigoDeErro = errorList[int];
-                if(codigoDeErro == 'LOGINERROR_EMAIL_INVALIDO'){
-                  atualizarStatus(false, true, true, false, 'Email Inválido! Digite um Email válido!');
-                }
-
-                if(codigoDeErro == 'LOGINERROR_EMAIL_NAO_CADASTRADO'){
-                  atualizarStatus(false, true, true, false, 'Não existe cadastro para o email fornecido!' );
-                }
-
-                if(codigoDeErro == 'LOGINERROR_SENHA_INCORRETA'){
-                  showMsgErroSenha('Sua senha está incorreta!');                  
-                }
-
-                if(codigoDeErro == 'LOGINERROR_USUARIO_BLOQUEADO'){
-                  atualizarStatus(false, true, false, false, 'Usuário bloqueado! Entre em contato com o seu patrocinador!' );
-                }
-
-              }
-            }else{
-              
-
-              //
-                
-                console.log('sem erros');
-               // $scope.password = '';
-              //  $rootScope.user = response.data.result.user;
-                var usuarioLogado = jsonResponse.user;
-                setLoggedUser(usuarioLogado);
-              
-                sessionStorage.setItem('loggedUser', JSON.stringify(usuarioLogado));
-                mixpanel.identify(usuarioLogado.idUsuario);
-                mixpanel.track('LoginPage_userloged_successfully');
-                mixpanel.people.set({ "first_name": usuarioLogado.nomeCompleto, "Email": usuarioLogado.email, "idEmpreendedor": usuarioLogado.idEmpreendedor });
-           
-                console.log('Usuario adicionado no sessionStorage ' +JSON.stringify(usuarioLogado) );
-                //LoggedUserService.setLoggedUser($rootScope.user);
-              
-              //  $cookieStore.put('pgn-userid', iddoUsuario);
-               // $location.path("/app/meuscursos");
-                //setValues({ ...values, showErrorMessage: false, showEmailError: false, showPasswordError: false, doingLogin : false }); 
-                window.location.href = '/';
-            }
-
-        }else{
-         // $scope.errorMessage = response.data.errorMessage;
-          //$scope.show=true;
-        }
-
-        //FIM ESTUDEONSEQUISER
-
-
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-
-
-     
-        
-
-
+      } else {
+        const user = data.result.user
+        if (user.idNivelDeAcesso < 5) { setErro('Você não tem permissão para acessar este sistema.'); return }
+        setLoggedUser(user)
+        mixpanel.identify(user.idUsuario)
+        mixpanel.track('LoginPage_userloged_successfully')
+        mixpanel.people.set({ first_name: user.nomeCompleto, Email: user.email, idUsuario: user.idUsuario })
+        window.location.href = '/empreendedores'
+      }
+    } catch { setErro(MSGS_ERRO.ERRO_INTERNO) }
+    finally { setCarregando(false) }
   }
-
-  const handleClickShowPassword = () => {
-    this.setState({ ...this.state, showPassword: !this.state.showPassword })
-  }
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault()
-  }
-
-  const handleKeyEnter= (event) =>{
-    console.log(event);
-  }
-  // ** Hook
-  //const theme = useTheme();
-  //const router = useRouter();
 
   return (
-    <Box className='content-center' sx={{backgroundColor: '#356fc0'}}>
+    <Box className='content-center' sx={{ backgroundColor: '#356fc0' }}>
       <Card sx={{ zIndex: 1 }}>
         <CardContent sx={{ padding: theme => `${theme.spacing(12, 9, 7)} !important` }}>
-          <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography
-              variant='h5' sx={{ fontWeight: 600, marginBottom: 1.5, textAlign: 'center' }}
-            >
+          <Box sx={{ mb: 8, display: 'flex', justifyContent: 'center' }}>
+            <Typography variant='h6' sx={{ fontWeight: 600, textAlign: 'center' }}>
               Gestão da Formação de Novos Distribuidores Royal Prestige
             </Typography>
           </Box>
-          <Box sx={{ mb: 6 }}>
-            <Typography variant='h9' sx={{ fontWeight: 600, marginBottom: 1.5 }}>
-              Seja bem vindo!👋🏻
-            </Typography>
-            <Typography variant='body2'>Por favor faça o login</Typography>
-          </Box>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
-            <TextField required autoFocus 
-            name='email' fullWidth 
-            error={this.state.showEmailError}  
-            value={this.state.email}  
-            onChange={handleChange('email')} 
-            
-            id='email' label='Email' sx={{ marginBottom: 4 }} />
-            <FormControl fullWidth>
-              <InputLabel htmlFor='auth-login-password'>Senha</InputLabel>
-              <OutlinedInput
-                label='password'
-                required
-                value={this.state.password}
-                id='auth-login-password'
-                onChange={handleChange('password')}
-                type={this.state.showPassword ? 'text' : 'password'}
-                error={this.state.showPasswordError}
-                onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      acessar();
-                    }
-                  }}
-                endAdornment={
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
 
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      aria-label='toggle password visibility'
-
-
-                    >
-                      {this.state.showPassword ? <EyeOutline /> : <EyeOffOutline />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            
-            </FormControl>
-            <Box
-              sx={{ mb: 4, display: 'flex', alignItems: 'right', flexWrap: 'wrap', justifyContent: 'flex-end' }}
-            >
-              <Link passHref href='/esqueceu-senha'>
-                <LinkStyled >Esqueceu a senha?</LinkStyled>
-              </Link>
-            </Box>
-            <ErrorMessageContainer show={this.state.showErrorMessage} message={this.state.errorMessage}/>
-            <LoginProgressContainer show={this.state.doingLogin}/>
-            <Button
-              fullWidth
-              size='large'
-              variant='contained'
-              sx={{ marginBottom: 7 }}
-              onClick={acessar}>
-              Acessar
-            </Button>
-          </form>
+          {etapa === 'email' ? (
+            <>
+              <Box sx={{ mb: 6 }}>
+                <Typography variant='h6' sx={{ fontWeight: 600 }}>Seja bem-vindo! 👋🏻</Typography>
+                <Typography variant='body2' color='text.secondary'>
+                  Digite seu e-mail para receber o código de acesso.
+                </Typography>
+              </Box>
+              <Stack spacing={4}>
+                <TextField fullWidth autoFocus label='E-mail' type='email' value={email} error={emailErro}
+                  disabled={carregando}
+                  onChange={e => { setEmail(e.target.value); setEmailErro(false); setErro(null) }}
+                  onKeyDown={e => { if (e.key === 'Enter') solicitarOTP() }}
+                  InputProps={{ startAdornment: <InputAdornment position='start'><EmailOutline /></InputAdornment> }}
+                />
+                {erro && <Alert severity='error'>{erro}</Alert>}
+                {carregando && <Stack spacing={1}><LinearProgress /><Typography variant='caption' sx={{ textAlign: 'center' }}>Enviando código...</Typography></Stack>}
+                <Button fullWidth size='large' variant='contained' disabled={carregando} onClick={solicitarOTP}>
+                  Enviar código
+                </Button>
+              </Stack>
+            </>
+          ) : (
+            <>
+              <Box sx={{ mb: 6 }}>
+                <Typography variant='h6' sx={{ fontWeight: 600 }}>Verifique seu e-mail</Typography>
+                <Typography variant='body2' color='text.secondary'>
+                  Enviamos um código para <strong>{email}</strong>
+                </Typography>
+              </Box>
+              <Stack spacing={4}>
+                <TextField fullWidth autoFocus label='Código de acesso' value={codigo} disabled={carregando}
+                  onChange={e => { setCodigo(e.target.value); setErro(null) }}
+                  onKeyDown={e => { if (e.key === 'Enter') verificarOTP() }}
+                  inputProps={{ maxLength: 6, style: { letterSpacing: '0.5em', textAlign: 'center', fontSize: '1.5rem' } }}
+                  InputProps={{ startAdornment: <InputAdornment position='start'><KeyOutline /></InputAdornment> }}
+                />
+                {erro && <Alert severity='error'>{erro}</Alert>}
+                {carregando && <Stack spacing={1}><LinearProgress /><Typography variant='caption' sx={{ textAlign: 'center' }}>Verificando código...</Typography></Stack>}
+                <Button fullWidth size='large' variant='contained' disabled={carregando} onClick={verificarOTP}>
+                  Entrar
+                </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Button size='small' variant='text' onClick={() => { setEtapa('email'); setCodigo(''); setErro(null) }}>
+                    ← Trocar e-mail
+                  </Button>
+                  <Button size='small' variant='text' disabled={reenvioSegundos > 0 || carregando}
+                    onClick={() => { setCodigo(''); solicitarOTP() }}>
+                    {reenvioSegundos > 0 ? `Reenviar em ${reenvioSegundos}s` : 'Reenviar código'}
+                  </Button>
+                </Box>
+              </Stack>
+            </>
+          )}
         </CardContent>
       </Card>
+      <FooterIllustrationsV1 />
     </Box>
   )
-  }
 }
 
-LoginPage.getLayout = (page) => <BlankLayout>{page}</BlankLayout>
+LoginPage.getLayout = page => <BlankLayout>{page}</BlankLayout>
 
 export default LoginPage
