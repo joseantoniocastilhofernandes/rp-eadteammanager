@@ -23,7 +23,7 @@ import { styled } from '@mui/material/styles'
 import { tableCellClasses } from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt'
-import QueryStatsIcon from '@mui/icons-material/QueryStats'
+
 import DeleteIcon from '@mui/icons-material/Delete'
 import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
@@ -209,12 +209,6 @@ function LinhasEmpreendedoresTable(props) {
                     : <Chip label='Sem acesso' color='warning' size='small' />}
                 </TableCell>
                 <TableCell align='center'>
-                  <Tooltip title='Relatório de estudos'>
-                    <IconButton size='small'
-                      onClick={() => { window.location.href = `/relatorio-de-estudo?idUsuario=${row.idUsuario}` }}>
-                      <QueryStatsIcon />
-                    </IconButton>
-                  </Tooltip>
                   <Tooltip title='Excluir empreendedor'>
                     <IconButton size='small' onClick={() => openModalExcluir(row)}>
                       <DeleteIcon />
