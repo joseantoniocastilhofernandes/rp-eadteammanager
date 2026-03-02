@@ -1,4 +1,4 @@
-export const SERVICES_CONTEXT = "https://api-gestao-de-ead.estudeondequiser.com.br/api"; //prod
+export const SERVICES_CONTEXT = "https://ead.estudeondequiser.com.br/api"; //prod
 //export const SERVICES_CONTEXT = "http://localhost:3000/api"; //dev
 export const MIXPANEL_TOKEN = "32d1a11ed1eae600a6a4437dccdb4b2c";
 
