@@ -1,36 +1,27 @@
-// ** MUI Imports
-import { PaletteMode } from '@mui/material'
-
-// ** Types
-import { ContentWidth } from 'src/@core/layouts/types'
+import { ThemeColor } from 'src/@core/layouts/types'
 
 type ThemeConfig = {
-  mode: PaletteMode
   templateName: string
+  mode: 'light' | 'dark'
   routingLoader: boolean
   disableRipple: boolean
   navigationSize: number
   menuTextTruncate: boolean
-  contentWidth: ContentWidth
+  contentWidth: 'full' | 'boxed'
   responsiveFontSizes: boolean
+  themeColor: ThemeColor
 }
 
 const themeConfig: ThemeConfig = {
-  // ** Layout Configs
-  templateName: 'RP Team' /* App Name */,
-  mode: 'light' /* light | dark */,
-  contentWidth: 'boxed' /* full | boxed */,
-
-  // ** Routing Configs
-  routingLoader: true /* true | false */,
-
-  // ** Navigation (Menu) Configs
-  menuTextTruncate: true /* true | false */,
-  navigationSize: 260 /* Number in PX(Pixels) /*! Note: This is for Vertical navigation menu only */,
-
-  // ** Other Configs
-  responsiveFontSizes: true /* true | false */,
-  disableRipple: false /* true | false */
+  templateName: 'Estude Onde Quiser',
+  mode: 'light',
+  routingLoader: true,
+  disableRipple: false,
+  navigationSize: 260,
+  menuTextTruncate: true,
+  contentWidth: 'boxed',
+  responsiveFontSizes: true,
+  themeColor: 'primary',
 }
 
 export default themeConfig

@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --blue-primary:   #2563eb;
+  --blue-dark:      #1e3a5f;
+  --blue-light:     #eff6ff;
+  --green-accent:   #10b981;
+  --amber-accent:   #f59e0b;
+  --red-accent:     #ef4444;
+  --gray-50:        #f8fafc;
+  --gray-100:       #f1f5f9;
+  --gray-200:       #e2e8f0;
+  --gray-300:       #cbd5e1;
+  --gray-400:       #94a3b8;
+  --gray-500:       #64748b;
+  --gray-700:       #334155;
+  --gray-900:       #0f172a;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:      0 8px 32px rgba(0,0,0,0.1);
+  --radius:         12px;
+  --radius-sm:      8px;
+  --radius-lg:      16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif !important;
+  background: var(--gray-50) !important;
+  color: var(--gray-900);
+}
+
+/* ── Overrides do template MUI ─────────────────────────── */
+
+/* Sidebar */
+.MuiDrawer-paper {
+  background: #fff !important;
+  border-right: 1px solid var(--gray-200) !important;
+  box-shadow: none !important;
+}
+
+/* Nav items */
+.MuiListItemButton-root {
+  border-radius: var(--radius-sm) !important;
+  margin: 2px 8px !important;
+  transition: background 0.15s !important;
+}
+.MuiListItemButton-root:hover {
+  background: var(--gray-100) !important;
+}
+.MuiListItemButton-root.Mui-selected,
+.MuiListItemButton-root.active {
+  background: var(--blue-light) !important;
+  color: var(--blue-primary) !important;
+}
+.MuiListItemButton-root.Mui-selected .MuiListItemIcon-root,
+.MuiListItemButton-root.active .MuiListItemIcon-root {
+  color: var(--blue-primary) !important;
+}
+
+/* AppBar / Header */
+.MuiAppBar-root {
+  background: #fff !important;
+  color: var(--gray-900) !important;
+  border-bottom: 1px solid var(--gray-200) !important;
+  box-shadow: none !important;
+}
+
+/* Cards */
+.MuiCard-root {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: 1px solid var(--gray-200) !important;
+}
+
+/* Botão primário */
+.MuiButton-containedPrimary {
+  background: var(--blue-primary) !important;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.MuiButton-containedPrimary:hover {
+  background: #1d4ed8 !important;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.3) !important;
+}
+
+/* Botões em geral */
+.MuiButton-root {
+  border-radius: var(--radius-sm) !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-family: 'DM Sans', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+/* Inputs */
+.MuiOutlinedInput-root {
+  border-radius: var(--radius-sm) !important;
+  font-family: 'DM Sans', sans-serif !important;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--blue-primary) !important;
+  border-width: 1.5px !important;
+}
+
+/* Chips */
+.MuiChip-colorSuccess { background: #dcfce7 !important; color: #15803d !important; }
+.MuiChip-colorWarning { background: #fef3c7 !important; color: #b45309 !important; }
+.MuiChip-colorError   { background: #fee2e2 !important; color: #b91c1c !important; }
+
+/* Tabs */
+.MuiTab-root {
+  text-transform: none !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 500 !important;
+}
+.MuiTabs-indicator { background: var(--blue-primary) !important; }
+.MuiTab-root.Mui-selected { color: var(--blue-primary) !important; }
+
+/* Dialog */
+.MuiDialog-paper {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }

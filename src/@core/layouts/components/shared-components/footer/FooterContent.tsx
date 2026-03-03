@@ -30,7 +30,7 @@ const FooterContent = () => {
           </Link>
           <Link
             target='_blank'
-            href='https://github.com/themeselection/materio-mui-react-nextjs-admin-template-free/issues'
+            href='https://wa.me/551999393686'
           >
             Suporte
           </Link>
