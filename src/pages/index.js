@@ -340,13 +340,13 @@ const GlobalStyle = () => (
 )
 
 const MSGS_ERRO = {
-  OTP_INVALIDO:                 'Código inválido. Verifique e tente novamente.',
-  OTP_EXPIRADO:                 'Código expirado. Solicite um novo.',
-  OTP_MAX_TENTATIVAS:           'Muitas tentativas incorretas. Solicite um novo código.',
-  LOGINERROR_USUARIO_BLOQUEADO: 'Usuário bloqueado. Entre em contato com o seu patrocinador.',
-  EMAIL_NAO_CADASTRADO:         'Este e-mail não está cadastrado no sistema.',
-  RATE_LIMIT:                   'Muitas tentativas. Aguarde alguns minutos.',
-  ERRO_INTERNO:                 'Erro interno. Tente novamente em instantes.',
+  OTP_INVALIDO:                    'Código inválido. Verifique e tente novamente.',
+  OTP_EXPIRADO:                    'Código expirado. Solicite um novo.',
+  OTP_MAX_TENTATIVAS:              'Muitas tentativas incorretas. Solicite um novo código.',
+  OTP_RATE_LIMIT:                  'Muitas tentativas. Aguarde alguns minutos.',
+  LOGINERROR_USUARIO_BLOQUEADO:    'Usuário bloqueado. Entre em contato com o seu patrocinador.',
+  LOGINERROR_EMAIL_NAO_CADASTRADO: 'Este e-mail não está cadastrado no sistema.',
+  ERRO_INTERNO:                    'Erro interno. Tente novamente em instantes.',
 }
 
 const LoginPage = () => {
@@ -356,6 +356,9 @@ const LoginPage = () => {
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState(null)
   const [reenvioSegundos, setReenvioSegundos] = useState(0)
+  const [avisoHotmail, setAvisoHotmail] = useState(false)
+
+  const isMicrosoftEmail = (e) => /^[^\s@]+@(hotmail|outlook|live|msn)\./i.test(e)
 
   useEffect(() => {
     mixpanel.init(MIXPANEL_TOKEN)
@@ -377,12 +380,15 @@ const LoginPage = () => {
     }
     setErro(null); setCarregando(true)
     try {
-      const { data } = await axios.post(`${SERVICES_CONTEXT}/otp/solicitar`, { email: emailNorm })
+      const { data } = await axios.post(`${SERVICES_CONTEXT}/otp/solicitar`, { email: emailNorm, sistema: 'GESTAO_ACESSOS' })
       if (data.result?.error) {
         setErro(MSGS_ERRO[data.result.errorCodes?.[0]] || MSGS_ERRO.ERRO_INTERNO)
       } else {
         setEtapa('otp')
         setReenvioSegundos(60)
+        const dominiosLixo = ['hotmail.com', 'hotmail.com.br', 'outlook.com', 'outlook.com.br', 'live.com']
+        const dominio = emailNorm.split('@')[1]?.toLowerCase()
+        setAvisoHotmail(dominiosLixo.includes(dominio))
       }
     } catch { setErro(MSGS_ERRO.ERRO_INTERNO) }
     finally { setCarregando(false) }
@@ -395,6 +401,7 @@ const LoginPage = () => {
       const { data } = await axios.post(`${SERVICES_CONTEXT}/otp/verificar`, {
         email: email.trim().toLowerCase(),
         codigo: codigo.trim(),
+        sistema: 'GESTAO_ACESSOS',
       })
       if (data.result?.error) {
         const cod = data.result.errorCodes?.[0]
@@ -517,6 +524,12 @@ const LoginPage = () => {
                 <div className='form-sub'>
                   Código enviado para<br /><strong>{email}</strong>
                 </div>
+
+                {avisoHotmail && (
+                  <div className='error-box' style={{ background: '#fffbeb', borderColor: '#fcd34d', color: '#92400e' }}>
+                    📧 <strong>Atenção:</strong> emails Hotmail/Outlook costumam receber o código na pasta <strong>Lixo Eletrônico</strong> ou <strong>Spam</strong>. Verifique lá antes de solicitar um novo código.
+                  </div>
+                )}
 
                 <input
                   className='code-field'
