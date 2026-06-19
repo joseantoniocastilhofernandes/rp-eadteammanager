@@ -1,40 +1,20 @@
-// ** React Imports
 import { useState } from 'react'
-
-// ** MUI Imports
 import Fab from '@mui/material/Fab'
 import { styled } from '@mui/material/styles'
 import Box, { BoxProps } from '@mui/material/Box'
-
-// ** Icons Imports
 import ArrowUp from 'mdi-material-ui/ArrowUp'
-
-// ** Theme Config Import
 import themeConfig from 'src/configs/themeConfig'
-
-// ** Type Import
 import { LayoutProps } from 'src/@core/layouts/types'
-
-// ** Components
-import AppBar from './components/vertical/appBar'
 import Navigation from './components/vertical/navigation'
 import Footer from './components/shared-components/footer'
 import ScrollToTop from 'src/@core/components/scroll-to-top'
-
-// ** Styled Component
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-
-const VerticalLayoutWrapper = styled('div')({
-  height: '100%',
-  display: 'flex'
-})
 
 const MainContentWrapper = styled(Box)<BoxProps>({
   flexGrow: 1,
   minWidth: 0,
   display: 'flex',
-  minHeight: '100vh',
-  flexDirection: 'column'
+  flexDirection: 'column',
 })
 
 const ContentWrapper = styled('main')(({ theme }) => ({
@@ -49,59 +29,51 @@ const ContentWrapper = styled('main')(({ theme }) => ({
 }))
 
 const VerticalLayout = (props: LayoutProps) => {
-  // ** Props
   const { settings, children, scrollToTop } = props
-
-  // ** Vars
   const { contentWidth } = settings
   const navWidth = themeConfig.navigationSize
-
-  // ** States
   const [navVisible, setNavVisible] = useState<boolean>(false)
-
-  // ** Toggle Functions
   const toggleNavVisibility = () => setNavVisible(!navVisible)
 
   return (
     <>
-      <VerticalLayoutWrapper className='layout-wrapper'>
-        {/* Navigation Menu */}
-        <Navigation
-          navWidth={navWidth}
-          navVisible={navVisible}
-          setNavVisible={setNavVisible}
-          toggleNavVisibility={toggleNavVisibility}
-          {...props}
-        />
-        <MainContentWrapper className='layout-content-wrapper'>
-          {/* AppBar Component */}
-          <AppBar toggleNavVisibility={toggleNavVisibility} {...props} />
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
-          {/* Content */}
-          <ContentWrapper
-            className='layout-page-content'
-            sx={{
-              ...(contentWidth === 'boxed' && {
-                mx: 'auto',
-                '@media (min-width:1440px)': { maxWidth: 1440 },
-                '@media (min-width:1200px)': { maxWidth: '100%' }
-              })
-            }}
-          >
-            {children}
-          </ContentWrapper>
+        {/* Header — div puro, sem MUI AppBar */}
+        <div style={{ flexShrink: 0 }}>
+          {props.verticalAppBarContent && props.verticalAppBarContent({ toggleNavVisibility })}
+        </div>
 
-          {/* Footer Component */}
-          <Footer {...props} />
+        {/* Body */}
+        <div style={{ display: 'flex', flex: 1 }} className='layout-wrapper'>
+          <Navigation
+            navWidth={navWidth}
+            navVisible={navVisible}
+            setNavVisible={setNavVisible}
+            toggleNavVisibility={toggleNavVisibility}
+            {...props}
+          />
+          <MainContentWrapper className='layout-content-wrapper'>
+            <ContentWrapper
+              className='layout-page-content'
+              sx={{
+                ...(contentWidth === 'boxed' && {
+                  mx: 'auto',
+                  '@media (min-width:1440px)': { maxWidth: 1440 },
+                  '@media (min-width:1200px)': { maxWidth: '100%' }
+                })
+              }}
+            >
+              {children}
+            </ContentWrapper>
+            <Footer {...props} />
+            <DatePickerWrapper sx={{ zIndex: 11 }}>
+              <Box id='react-datepicker-portal'></Box>
+            </DatePickerWrapper>
+          </MainContentWrapper>
+        </div>
+      </div>
 
-          {/* Portal for React Datepicker */}
-          <DatePickerWrapper sx={{ zIndex: 11 }}>
-            <Box id='react-datepicker-portal'></Box>
-          </DatePickerWrapper>
-        </MainContentWrapper>
-      </VerticalLayoutWrapper>
-
-      {/* Scroll to top button */}
       {scrollToTop ? (
         scrollToTop(props)
       ) : (

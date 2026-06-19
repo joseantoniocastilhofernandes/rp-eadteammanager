@@ -1,11 +1,6 @@
-// ** React Imports
 import { ReactNode } from 'react'
-
-// ** MUI Imports
 import { styled, useTheme } from '@mui/material/styles'
 import MuiSwipeableDrawer, { SwipeableDrawerProps } from '@mui/material/SwipeableDrawer'
-
-// ** Type Import
 import { Settings } from 'src/@core/context/settingsContext'
 
 interface Props {
@@ -21,13 +16,8 @@ interface Props {
 const SwipeableDrawer = styled(MuiSwipeableDrawer)<SwipeableDrawerProps>({
   overflowX: 'hidden',
   transition: 'width .25s ease-in-out',
-  '& ul': {
-    listStyle: 'none'
-  },
-  '& .MuiListItem-gutters': {
-    paddingLeft: 4,
-    paddingRight: 4
-  },
+  '& ul': { listStyle: 'none' },
+  '& .MuiListItem-gutters': { paddingLeft: 4, paddingRight: 4 },
   '& .MuiDrawer-paper': {
     left: 'unset',
     right: 'unset',
@@ -36,41 +26,43 @@ const SwipeableDrawer = styled(MuiSwipeableDrawer)<SwipeableDrawerProps>({
   }
 })
 
-const Drawer = (props: Props) => {
-  // ** Props
-  const { hidden, children, navWidth, navVisible, setNavVisible } = props
+// Desktop: div simples no fluxo normal, sem position fixed
+const DesktopSidebar = styled('div')(({ theme }) => ({
+  width: 260,
+  flexShrink: 0,
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  borderRight: '1px solid #e2e8f0',
+  backgroundColor: theme.palette.background.default,
+  '& ul': { listStyle: 'none' },
+  '& .MuiListItem-gutters': { paddingLeft: 4, paddingRight: 4 },
+}))
 
-  // ** Hook
+const Drawer = (props: Props) => {
+  const { hidden, children, navWidth, navVisible, setNavVisible } = props
   const theme = useTheme()
 
-  // Drawer Props for Mobile & Tablet screens
-  const MobileDrawerProps = {
-    open: navVisible,
-    onOpen: () => setNavVisible(true),
-    onClose: () => setNavVisible(false),
-    ModalProps: {
-      keepMounted: true // Better open performance on mobile.
-    }
-  }
-
-  // Drawer Props for Desktop screens
-  const DesktopDrawerProps = {
-    open: true,
-    onOpen: () => null,
-    onClose: () => null
+  if (!hidden) {
+    return (
+      <DesktopSidebar className='layout-vertical-nav'>
+        {children}
+      </DesktopSidebar>
+    )
   }
 
   return (
     <SwipeableDrawer
       className='layout-vertical-nav'
-      variant={hidden ? 'temporary' : 'permanent'}
-      {...(hidden ? { ...MobileDrawerProps } : { ...DesktopDrawerProps })}
+      variant='temporary'
+      open={navVisible}
+      onOpen={() => setNavVisible(true)}
+      onClose={() => setNavVisible(false)}
+      ModalProps={{ keepMounted: true }}
       PaperProps={{ sx: { width: navWidth } }}
       sx={{
-        width: navWidth,
         '& .MuiDrawer-paper': {
-          borderRight: 0,
-          backgroundColor: theme.palette.background.default
+          borderRight: '1px solid #e2e8f0',
+          backgroundColor: theme.palette.background.default,
         }
       }}
     >

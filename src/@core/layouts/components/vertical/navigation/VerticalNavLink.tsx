@@ -45,11 +45,13 @@ const MenuNavLink = styled(ListItemButton)<
   padding: theme.spacing(2.25, 3.5),
   transition: 'opacity .25s ease-in-out',
   '&.active, &.active:hover': {
-    boxShadow: theme.shadows[3],
-    backgroundImage: `linear-gradient(98deg, ${theme.palette.customColors.primaryGradient}, ${theme.palette.primary.main} 94%)`
+    boxShadow: 'none',
+    backgroundColor: '#eff6ff',
+    backgroundImage: 'none',
   },
   '&.active .MuiTypography-root, &.active .MuiSvgIcon-root': {
-    color: `${theme.palette.common.white} !important`
+    color: `#2563eb !important`,
+    fontWeight: 600,
   }
 }))
 

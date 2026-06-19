@@ -10,7 +10,7 @@ const DefaultPalette = (mode: PaletteMode, themeColor: ThemeColor) => {
 
   const primaryGradient = () => {
     if (themeColor === 'primary') {
-      return '#C6A7FE'
+      return '#93c5fd'
     } else if (themeColor === 'secondary') {
       return '#9C9FA4'
     } else if (themeColor === 'success') {
@@ -37,9 +37,9 @@ const DefaultPalette = (mode: PaletteMode, themeColor: ThemeColor) => {
     },
     mode: mode,
     primary: {
-      light: '#9E69FD',
-      main: '#356FC0',  //antigo 9155FD
-      dark: '#0a8e08', //antigo 804BDF
+      light: '#60a5fa',
+      main: '#2563eb',
+      dark: '#1d4ed8',
       contrastText: '#FFF'
     },
     secondary: {

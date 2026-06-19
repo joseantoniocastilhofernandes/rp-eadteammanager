@@ -14,7 +14,6 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Chip from '@mui/material/Chip'
 import Alert from '@mui/material/Alert'
-import Stack from '@mui/material/Stack'
 import LinearProgress from '@mui/material/LinearProgress'
 import Table from '@mui/material/Table'
 import TableHead from '@mui/material/TableHead'
@@ -24,9 +23,12 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import StarIcon from '@mui/icons-material/Star'
 import SearchIcon from '@mui/icons-material/Search'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
@@ -62,26 +64,30 @@ const tdCell = {
 function ModalExcluir({ open, emp, onClose, onRecarregar }) {
   const [excluindo, setExcluindo] = useState(false)
   const [excluido, setExcluido] = useState(false)
+  const [erro, setErro] = useState('')
 
   const handleClose = () => {
     if (excluido) onRecarregar()
     setExcluido(false)
+    setErro('')
     onClose()
   }
 
   const excluir = () => {
     const user = JSON.parse(sessionStorage.getItem('loggedUser'))
     setExcluindo(true)
-    axios({
-      method: 'delete',
-      url: `${SERVICES_CONTEXT}/empreendedor/excluir`,
-      data: { idUsuario: emp.idUsuario, idPatrocinador: user.idUsuario },
+    setErro('')
+    axios.delete(`${SERVICES_CONTEXT}/empreendedor/excluir`, {
+      params: { idUsuario: emp.idUsuario, idPatrocinador: user.idUsuario },
     }).then(({ data }) => {
       if (!data.result.error) {
         mixpanel.track('Excluiu Empreendedor')
         setExcluido(true)
+      } else {
+        setErro(data.result.errorCodes?.[0] || 'Não foi possível remover.')
       }
-    }).catch(console.error).finally(() => setExcluindo(false))
+    }).catch(() => setErro('Erro de conexão. Tente novamente.'))
+      .finally(() => setExcluindo(false))
   }
 
   return (
@@ -96,7 +102,7 @@ function ModalExcluir({ open, emp, onClose, onRecarregar }) {
             <Box>
               <Typography fontWeight={600} fontFamily='DM Sans, sans-serif'>Removido com sucesso</Typography>
               <Typography variant='caption' color='text.secondary' fontFamily='DM Sans, sans-serif'>
-                O acesso ao EAD foi revogado.
+                O acesso ao EAD foi revogado. Ele aparecerá em &quot;Excluídos&quot; e pode ser reativado.
               </Typography>
             </Box>
           </Box>
@@ -117,8 +123,13 @@ function ModalExcluir({ open, emp, onClose, onRecarregar }) {
               severity='error' icon={<WarningAmberIcon fontSize='small' />}
               sx={{ borderRadius: 'var(--radius-sm)', fontSize: 13 }}
             >
-              O acesso ao EAD e todo o histórico de estudos será perdido.
+              O acesso ao EAD será revogado. O histórico é preservado e pode ser restaurado depois.
             </Alert>
+            {erro && (
+              <Alert severity='error' sx={{ mt: 1.5, borderRadius: 'var(--radius-sm)', fontSize: 13 }}>
+                {erro}
+              </Alert>
+            )}
             {excluindo && <LinearProgress sx={{ mt: 2, borderRadius: 4 }} />}
           </Box>
         )}
@@ -143,9 +154,104 @@ function ModalExcluir({ open, emp, onClose, onRecarregar }) {
   )
 }
 
-function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
+function ModalReativar({ open, emp, onClose, onRecarregar }) {
+  const [reativando, setReativando] = useState(false)
+  const [reativado, setReativado] = useState(false)
+  const [erro, setErro] = useState('')
+
+  const handleClose = () => {
+    if (reativado) onRecarregar()
+    setReativado(false)
+    setErro('')
+    onClose()
+  }
+
+  const reativar = () => {
+    const user = JSON.parse(sessionStorage.getItem('loggedUser'))
+    setReativando(true)
+    setErro('')
+    axios.post(`${SERVICES_CONTEXT}/empreendedor/reativar`, {
+      idUsuario: emp.idUsuario,
+      idPatrocinador: user.idUsuario,
+    }).then(({ data }) => {
+      if (!data.result.error) {
+        mixpanel.track('Reativou Empreendedor')
+        setReativado(true)
+      } else {
+        setErro(data.result.errorCodes?.[0] || 'Não foi possível reativar.')
+      }
+    }).catch(() => setErro('Erro de conexão. Tente novamente.'))
+      .finally(() => setReativando(false))
+  }
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth='xs' fullWidth>
+      <DialogTitle sx={{ pb: 1, fontFamily: 'DM Sans, sans-serif', fontWeight: 700 }}>
+        Reativar distribuidor
+      </DialogTitle>
+      <DialogContent>
+        {reativado ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+            <CheckCircleOutlineIcon sx={{ color: 'var(--green-accent)', fontSize: 28 }} />
+            <Box>
+              <Typography fontWeight={600} fontFamily='DM Sans, sans-serif'>Reativado com sucesso</Typography>
+              <Typography variant='caption' color='text.secondary' fontFamily='DM Sans, sans-serif'>
+                O acesso ao EAD foi restaurado e ele foi avisado por e-mail.
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Box>
+            <Box sx={{
+              background: 'var(--gray-50)', border: '1px solid var(--gray-200)',
+              borderRadius: 'var(--radius-sm)', p: 2, mb: 2,
+            }}>
+              <Typography fontWeight={600} fontFamily='DM Sans, sans-serif'>
+                {emp?.nome} {emp?.sobrenome}
+              </Typography>
+              <Typography variant='body2' color='text.secondary' fontFamily='DM Sans, sans-serif'>
+                {emp?.email}
+              </Typography>
+            </Box>
+            <Alert
+              severity='info' icon={<RestartAltIcon fontSize='small' />}
+              sx={{ borderRadius: 'var(--radius-sm)', fontSize: 13 }}
+            >
+              O acesso ao EAD será restaurado e o curso liberado novamente, mantendo o histórico anterior.
+            </Alert>
+            {erro && (
+              <Alert severity='error' sx={{ mt: 1.5, borderRadius: 'var(--radius-sm)', fontSize: 13 }}>
+                {erro}
+              </Alert>
+            )}
+            {reativando && <LinearProgress sx={{ mt: 2, borderRadius: 4 }} />}
+          </Box>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+        {reativado ? (
+          <Button onClick={handleClose} variant='contained' size='small'>Fechar</Button>
+        ) : (
+          <>
+            <Button onClick={handleClose} disabled={reativando} size='small'
+              sx={{ color: 'var(--gray-500)' }}>
+              Cancelar
+            </Button>
+            <Button onClick={reativar} color='success' variant='contained' disabled={reativando}
+              size='small' autoFocus>
+              Confirmar reativação
+            </Button>
+          </>
+        )}
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+function TabelaEmpreendedores({ empreendedores, loading, onRecarregar, modo = 'ativos' }) {
   const [busca, setBusca] = useState('')
   const [modalEmp, setModalEmp] = useState(null)
+  const excluidos = modo === 'excluidos'
 
   const filtrados = (empreendedores || []).filter(e => {
     const q = busca.toLowerCase()
@@ -158,7 +264,7 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
         <LinearProgress sx={{ borderRadius: 4, mb: 2 }} />
         <Typography variant='body2' color='text.secondary' textAlign='center'
           fontFamily='DM Sans, sans-serif'>
-          Carregando sua equipe...
+          {excluidos ? 'Carregando excluídos...' : 'Carregando sua equipe...'}
         </Typography>
       </Box>
     )
@@ -169,15 +275,19 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
       <Box sx={{ py: 8, textAlign: 'center' }}>
         <PeopleOutlineIcon sx={{ fontSize: 48, color: 'var(--gray-300)', mb: 2 }} />
         <Typography fontWeight={600} mb={0.5} fontFamily='DM Sans, sans-serif'>
-          Nenhum distribuidor ainda
+          {excluidos ? 'Nenhum distribuidor excluído' : 'Nenhum distribuidor ainda'}
         </Typography>
         <Typography variant='body2' color='text.secondary' mb={3} fontFamily='DM Sans, sans-serif'>
-          Após o cadastro, o distribuidor receberá acesso ao EAD automaticamente.
+          {excluidos
+            ? 'Distribuidores removidos aparecem aqui e podem ser reativados.'
+            : 'Após o cadastro, o distribuidor receberá acesso ao EAD automaticamente.'}
         </Typography>
-        <Button variant='contained' endIcon={<PersonAddAltIcon />}
-          onClick={() => { window.location.href = '/cadastro-de-empreendedor' }}>
-          Adicionar distribuidor
-        </Button>
+        {!excluidos && (
+          <Button variant='contained' endIcon={<PersonAddAltIcon />}
+            onClick={() => { window.location.href = '/cadastro-de-empreendedor' }}>
+            Adicionar distribuidor
+          </Button>
+        )}
       </Box>
     )
   }
@@ -199,7 +309,7 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
           sx={{ width: 280 }}
         />
         <Typography variant='body2' color='text.secondary' fontFamily='DM Sans, sans-serif'>
-          {filtrados.length} distribuidor{filtrados.length !== 1 ? 'es' : ''}
+          {filtrados.length} {excluidos ? 'excluído' : 'distribuidor'}{filtrados.length !== 1 ? (excluidos ? 's' : 'es') : ''}
         </Typography>
       </Box>
 
@@ -225,11 +335,11 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Box sx={{
                       width: 36, height: 36, borderRadius: '50%',
-                      background: 'var(--blue-light)',
+                      background: excluidos ? 'var(--gray-100)' : 'var(--blue-light)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
                     }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 700, color: 'var(--blue-primary)' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700, color: excluidos ? 'var(--gray-400)' : 'var(--blue-primary)' }}>
                         {row.nome?.charAt(0)?.toUpperCase()}
                       </Typography>
                     </Box>
@@ -260,20 +370,32 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ ...tdCell, textAlign: 'center' }}>
-                  {row.curso
-                    ? <Chip size='small' label='Liberado'
-                        sx={{ background: '#dcfce7', color: '#15803d', fontWeight: 600, fontSize: 11 }} />
-                    : <Chip size='small' label='Sem acesso'
-                        sx={{ background: '#fef3c7', color: '#b45309', fontWeight: 600, fontSize: 11 }} />
+                  {excluidos
+                    ? <Chip size='small' label='Excluído'
+                        sx={{ background: '#fee2e2', color: '#b91c1c', fontWeight: 600, fontSize: 11 }} />
+                    : row.curso
+                      ? <Chip size='small' label='Liberado'
+                          sx={{ background: '#dcfce7', color: '#15803d', fontWeight: 600, fontSize: 11 }} />
+                      : <Chip size='small' label='Sem acesso'
+                          sx={{ background: '#fef3c7', color: '#b45309', fontWeight: 600, fontSize: 11 }} />
                   }
                 </TableCell>
                 <TableCell sx={{ ...tdCell, textAlign: 'center' }}>
-                  <Tooltip title='Remover distribuidor'>
-                    <IconButton size='small' onClick={() => setModalEmp(row)}
-                      sx={{ color: 'var(--gray-400)', '&:hover': { color: 'var(--red-accent)', background: '#fee2e2' } }}>
-                      <DeleteOutlineIcon fontSize='small' />
-                    </IconButton>
-                  </Tooltip>
+                  {excluidos ? (
+                    <Tooltip title='Reativar distribuidor'>
+                      <IconButton size='small' onClick={() => setModalEmp(row)}
+                        sx={{ color: 'var(--gray-400)', '&:hover': { color: 'var(--green-accent)', background: '#dcfce7' } }}>
+                        <RestartAltIcon fontSize='small' />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title='Remover distribuidor'>
+                      <IconButton size='small' onClick={() => setModalEmp(row)}
+                        sx={{ color: 'var(--gray-400)', '&:hover': { color: 'var(--red-accent)', background: '#fee2e2' } }}>
+                        <DeleteOutlineIcon fontSize='small' />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -281,12 +403,21 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
         </Table>
       </TableContainer>
 
-      <ModalExcluir
-        open={!!modalEmp}
-        emp={modalEmp}
-        onClose={() => setModalEmp(null)}
-        onRecarregar={onRecarregar}
-      />
+      {excluidos ? (
+        <ModalReativar
+          open={!!modalEmp}
+          emp={modalEmp}
+          onClose={() => setModalEmp(null)}
+          onRecarregar={onRecarregar}
+        />
+      ) : (
+        <ModalExcluir
+          open={!!modalEmp}
+          emp={modalEmp}
+          onClose={() => setModalEmp(null)}
+          onRecarregar={onRecarregar}
+        />
+      )}
     </Box>
   )
 }
@@ -294,34 +425,64 @@ function TabelaEmpreendedores({ empreendedores, loading, onRecarregar }) {
 class DashboardTable extends Component {
   constructor(props) {
     super(props)
-    this.state = { empreendedores: [], loadingEmpreendedores: true }
+    this.state = {
+      aba: 'ativos',
+      ativos: [],
+      excluidos: [],
+      loadingAtivos: true,
+      loadingExcluidos: false,
+      excluidosCarregados: false,
+    }
   }
 
   componentDidMount() {
     mixpanel.init(MIXPANEL_TOKEN)
-    this.carregarEmpreendedores()
+    this.carregar('ativos')
   }
 
-  carregarEmpreendedores() {
+  carregar(status) {
     const user = sessionStorage.getItem('loggedUser')
     if (!user) { window.location.href = '/'; return }
     const { idUsuario } = JSON.parse(user)
-    this.setState({ loadingEmpreendedores: true })
-    axios.get(`${SERVICES_CONTEXT}/empreendedor/listar`, { params: { idUsuario } })
+    const excluidos = status === 'excluidos'
+
+    this.setState(excluidos ? { loadingExcluidos: true } : { loadingAtivos: true })
+
+    axios.get(`${SERVICES_CONTEXT}/empreendedor/listar`, {
+      params: { idUsuario, status: excluidos ? 'excluidos' : 'ativos' },
+    })
       .then(({ data }) => {
-        if (!data.result.error) this.setState({ empreendedores: data.result.empreendedores })
+        if (!data.result.error) {
+          this.setState(excluidos
+            ? { excluidos: data.result.empreendedores, excluidosCarregados: true }
+            : { ativos: data.result.empreendedores })
+        }
       })
       .catch(console.error)
-      .finally(() => this.setState({ loadingEmpreendedores: false }))
+      .finally(() => this.setState(excluidos ? { loadingExcluidos: false } : { loadingAtivos: false }))
+  }
+
+  // Reativar/excluir move o registro entre as listas — recarrega ambas.
+  recarregar() {
+    this.carregar('ativos')
+    if (this.state.excluidosCarregados) this.carregar('excluidos')
+  }
+
+  trocarAba(novaAba) {
+    this.setState({ aba: novaAba })
+    if (novaAba === 'excluidos' && !this.state.excluidosCarregados) {
+      this.carregar('excluidos')
+    }
   }
 
   render() {
-    const count = this.state.empreendedores?.length || 0
+    const { aba, ativos, excluidos, loadingAtivos, loadingExcluidos } = this.state
+    const count = ativos?.length || 0
 
     return (
       <Box>
         {/* Header da página */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
           <Box>
             <Typography variant='h5' fontWeight={700} fontFamily='DM Sans, sans-serif' mb={0.5}>
               Minha equipe
@@ -332,13 +493,21 @@ class DashboardTable extends Component {
                 : 'Gerencie os distribuidores da sua rede'}
             </Typography>
           </Box>
-          {count > 0 && (
-            <Button variant='contained' endIcon={<PersonAddAltIcon />}
-              onClick={() => { window.location.href = '/cadastro-de-empreendedor' }}>
-              Adicionar
-            </Button>
-          )}
+          <Button variant='contained' endIcon={<PersonAddAltIcon />}
+            onClick={() => { window.location.href = '/cadastro-de-empreendedor' }}>
+            Adicionar
+          </Button>
         </Box>
+
+        {/* Abas */}
+        <Tabs
+          value={aba}
+          onChange={(e, v) => this.trocarAba(v)}
+          sx={{ mb: 3, minHeight: 40, '& .MuiTab-root': { minHeight: 40, textTransform: 'none', fontFamily: 'DM Sans, sans-serif', fontWeight: 600 } }}
+        >
+          <Tab value='ativos' label={`Equipe ativa${count ? ` (${count})` : ''}`} />
+          <Tab value='excluidos' label={`Excluídos${this.state.excluidosCarregados ? ` (${excluidos.length})` : ''}`} />
+        </Tabs>
 
         {/* Card da tabela */}
         <Box sx={{
@@ -348,11 +517,21 @@ class DashboardTable extends Component {
           boxShadow: 'var(--shadow-sm)',
           p: 3,
         }}>
-          <TabelaEmpreendedores
-            empreendedores={this.state.empreendedores}
-            loading={this.state.loadingEmpreendedores}
-            onRecarregar={() => this.carregarEmpreendedores()}
-          />
+          {aba === 'ativos' ? (
+            <TabelaEmpreendedores
+              modo='ativos'
+              empreendedores={ativos}
+              loading={loadingAtivos}
+              onRecarregar={() => this.recarregar()}
+            />
+          ) : (
+            <TabelaEmpreendedores
+              modo='excluidos'
+              empreendedores={excluidos}
+              loading={loadingExcluidos}
+              onRecarregar={() => this.recarregar()}
+            />
+          )}
         </Box>
       </Box>
     )

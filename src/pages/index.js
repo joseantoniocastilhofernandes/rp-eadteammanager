@@ -340,13 +340,14 @@ const GlobalStyle = () => (
 )
 
 const MSGS_ERRO = {
-  OTP_INVALIDO:                    'Código inválido. Verifique e tente novamente.',
-  OTP_EXPIRADO:                    'Código expirado. Solicite um novo.',
-  OTP_MAX_TENTATIVAS:              'Muitas tentativas incorretas. Solicite um novo código.',
-  OTP_RATE_LIMIT:                  'Muitas tentativas. Aguarde alguns minutos.',
-  LOGINERROR_USUARIO_BLOQUEADO:    'Usuário bloqueado. Entre em contato com o seu patrocinador.',
-  LOGINERROR_EMAIL_NAO_CADASTRADO: 'Este e-mail não está cadastrado no sistema.',
-  ERRO_INTERNO:                    'Erro interno. Tente novamente em instantes.',
+  OTP_INVALIDO:                       'Código inválido. Verifique e tente novamente.',
+  OTP_EXPIRADO:                       'Código expirado. Solicite um novo.',
+  OTP_MAX_TENTATIVAS:                 'Muitas tentativas incorretas. Solicite um novo código.',
+  OTP_RATE_LIMIT:                     'Muitas tentativas. Aguarde alguns minutos.',
+  LOGINERROR_USUARIO_BLOQUEADO:       'Usuário bloqueado. Entre em contato com o seu patrocinador.',
+  LOGINERROR_EMAIL_NAO_CADASTRADO:    'Este e-mail não está cadastrado no sistema.',
+  LOGINERROR_SEM_PERMISSAO_SISTEMA:   'Você não tem acesso a este sistema. Fale com o seu patrocinador.',
+  ERRO_INTERNO:                       'Erro interno. Tente novamente em instantes.',
 }
 
 const LoginPage = () => {

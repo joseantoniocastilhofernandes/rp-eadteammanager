@@ -244,7 +244,7 @@ export default function CadastroDeEmpreendedor() {
               {salvando && <LinearProgress sx={{ mt: 2.5, borderRadius: 4 }} />}
 
               <Button
-                variant='contained' fullWidth size='large'
+                variant='contained'
                 disabled={salvando} onClick={handleSubmit}
                 endIcon={<PersonAddAltIcon />}
                 sx={{ mt: 3 }}

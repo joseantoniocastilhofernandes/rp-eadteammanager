@@ -15,32 +15,18 @@ interface Props {
 }
 
 const MenuHeaderWrapper = styled(Box)<BoxProps>(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingLeft: theme.spacing(5),
-  paddingRight: theme.spacing(4.5),
-  transition: 'padding .25s ease-in-out',
-  minHeight: theme.mixins.toolbar.minHeight,
-  backgroundColor: theme.palette.primary.main,
+  display: 'none',
 }))
 
 const StyledLink = styled('a')({
-  display: 'flex',
-  alignItems: 'center',
-  textDecoration: 'none',
-  gap: '10px',
+  display: 'none',
 })
 
-const LogoBadge = styled(Box)({
-  width: 32, height: 32,
-  borderRadius: 8,
-  background: 'rgba(255,255,255,0.15)',
-  border: '1px solid rgba(255,255,255,0.25)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 16,
+const LogoBadge = styled('img')({
+  height: 28,
+  width: 'auto',
+  maxWidth: 140,
+  objectFit: 'contain',
   flexShrink: 0,
 })
 
@@ -54,7 +40,7 @@ const VerticalNavHeader = (props: Props) => {
       ) : (
         <Link href='/empreendedores' passHref>
           <StyledLink>
-            <LogoBadge>🎓</LogoBadge>
+            <LogoBadge src='/images/logos/logo_fw.png' alt='Estude Onde Quiser' />
             <Typography sx={{
               color: '#fff',
               fontWeight: 700,
