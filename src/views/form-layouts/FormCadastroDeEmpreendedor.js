@@ -125,6 +125,8 @@ export default class FormCadastroDeEmpreendedor extends Component {
           const msgs = {
             EMAIL_JA_CADASTRADO: 'Já existe empreendedor cadastrado com este e-mail!',
             SEM_PERMISSAO: 'Você não tem permissão para cadastrar empreendedores.',
+            PRODUTOR_NAO_IDENTIFICADO: 'Sua conta não está vinculada a nenhum produtor ativo. Fale com o suporte.',
+            NENHUM_CURSO_AUTOMATICO: 'Nenhum curso está configurado para liberação automática. Fale com o suporte.',
           }
           this.setState({
             salvandoDados: false,

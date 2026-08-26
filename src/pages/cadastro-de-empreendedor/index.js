@@ -23,6 +23,8 @@ const MSGS_ERRO = {
   PATROCINADOR_INVALIDO: 'Sessão inválida. Faça login novamente.',
   SEM_PERMISSAO:        'Você não tem permissão para cadastrar empreendedores.',
   CAMPOS_OBRIGATORIOS:  'Preencha todos os campos obrigatórios.',
+  PRODUTOR_NAO_IDENTIFICADO: 'Sua conta não está vinculada a nenhum produtor ativo. Fale com o suporte.',
+  NENHUM_CURSO_AUTOMATICO:   'Nenhum curso está configurado para liberação automática. Fale com o suporte.',
   ERRO_INTERNO:         'Erro interno. Tente novamente em instantes.',
 }
 

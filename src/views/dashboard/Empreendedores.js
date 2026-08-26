@@ -84,7 +84,10 @@ function ModalExcluir({ open, emp, onClose, onRecarregar }) {
         mixpanel.track('Excluiu Empreendedor')
         setExcluido(true)
       } else {
-        setErro(data.result.errorCodes?.[0] || 'Não foi possível remover.')
+        const msgs = {
+          SEM_PERMISSAO: 'Você não tem permissão para remover este distribuidor.',
+        }
+        setErro(msgs[data.result.errorCodes?.[0]] || 'Não foi possível remover.')
       }
     }).catch(() => setErro('Erro de conexão. Tente novamente.'))
       .finally(() => setExcluindo(false))
@@ -178,7 +181,12 @@ function ModalReativar({ open, emp, onClose, onRecarregar }) {
         mixpanel.track('Reativou Empreendedor')
         setReativado(true)
       } else {
-        setErro(data.result.errorCodes?.[0] || 'Não foi possível reativar.')
+        const msgs = {
+          SEM_PERMISSAO: 'Você não tem permissão para reativar este distribuidor.',
+          PRODUTOR_NAO_IDENTIFICADO: 'Sua conta não está vinculada a nenhum produtor ativo. Fale com o suporte.',
+          NENHUM_CURSO_AUTOMATICO: 'Nenhum curso está configurado para liberação automática. Fale com o suporte.',
+        }
+        setErro(msgs[data.result.errorCodes?.[0]] || 'Não foi possível reativar.')
       }
     }).catch(() => setErro('Erro de conexão. Tente novamente.'))
       .finally(() => setReativando(false))
