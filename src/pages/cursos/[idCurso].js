@@ -32,14 +32,22 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
 
 import {
-  carregarCurso, criarModulo, excluirModulo, editarModulo,
-  criarAula, excluirAula, editarAula, statusDaAula, mensagemDeErro,
+  carregarCurso, criarModulo, excluirModulo, editarModulo, reordenarModulos,
+  criarAula, excluirAula, editarAula, reordenarAulas, statusDaAula,
+  alterarStatusDoCurso, mensagemDeErro,
 } from 'src/services/gestaoCursos'
 import { enviarVideo, formatarDuracao } from 'src/services/uploadVideo'
+import { useReordenar } from 'src/hooks/useReordenar'
 
 const fonte = { fontFamily: 'DM Sans, sans-serif' }
+
+const STATUS_LIBERADO = 1
+const STATUS_RASCUNHO = 4
 
 /** Ícone e texto conforme a situação do vídeo. */
 function situacaoDoVideo(aula, envio) {
@@ -60,6 +68,58 @@ function situacaoDoVideo(aula, envio) {
     icone: <CheckCircleOutlineIcon sx={{ fontSize: 18, color: 'success.main' }} />,
     texto: formatarDuracao(aula.duracaoSegundos) || 'Pronto',
   }
+}
+
+/** Aulas de um módulo. Componente à parte porque cada lista precisa do
+ *  próprio estado de arrasto. */
+const ListaDeAulas = ({ modulo, envios, aoReordenar, aoRenomear, aoExcluir }) => {
+  const arrastar = useReordenar(modulo.aulas, aoReordenar)
+
+  return (
+    <>
+      {modulo.aulas.map((aula, indice) => {
+        const envio = envios[aula.id]
+        const situacao = situacaoDoVideo(aula, envio)
+        const ocupada = envio !== undefined
+        const props = ocupada ? {} : arrastar.props(aula.id, indice)
+
+        return (
+          <Box
+            key={aula.id}
+            {...props}
+            sx={{
+              display: 'flex', alignItems: 'center', gap: 2,
+              py: 1.5, px: 2, mb: 1, borderRadius: 1,
+              bgcolor: 'action.hover',
+            }}
+          >
+            <DragIndicatorIcon
+              sx={{ color: 'text.disabled', cursor: ocupada ? 'default' : 'grab' }}
+            />
+            <PlayCircleOutlineIcon sx={{ color: 'text.disabled' }} />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography sx={{ ...fonte, fontWeight: 500 }} noWrap>{aula.nome}</Typography>
+              <Stack direction='row' spacing={0.5} alignItems='center'>
+                {situacao.icone}
+                <Typography variant='caption' sx={{ ...fonte, color: 'text.secondary' }}>
+                  {situacao.texto}
+                </Typography>
+              </Stack>
+              {ocupada && (
+                <LinearProgress variant='determinate' value={envio} sx={{ mt: 1, borderRadius: 1 }} />
+              )}
+            </Box>
+            <IconButton size='small' onClick={() => aoRenomear(aula)} disabled={ocupada}>
+              <EditOutlinedIcon fontSize='small' />
+            </IconButton>
+            <IconButton size='small' onClick={() => aoExcluir(aula)} disabled={ocupada}>
+              <DeleteOutlineIcon fontSize='small' />
+            </IconButton>
+          </Box>
+        )
+      })}
+    </>
+  )
 }
 
 const EstruturaDoCurso = () => {
@@ -202,6 +262,48 @@ const EstruturaDoCurso = () => {
     }
   }
 
+  // ── reordenar ───────────────────────────────────────────────────────
+  const arrastarModulos = useReordenar(modulos, async (ordem, nova) => {
+    setModulos(nova) // resposta imediata; o servidor confirma depois
+    try {
+      await reordenarModulos(idCurso, ordem)
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+      buscar()
+    }
+  })
+
+  const soltarAulas = (idModulo) => async (ordem, nova) => {
+    setModulos((atual) => atual.map((m) => (m.id === idModulo ? { ...m, aulas: nova } : m)))
+    try {
+      await reordenarAulas(idModulo, ordem)
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+      buscar()
+    }
+  }
+
+  // ── publicar ────────────────────────────────────────────────────────
+  const alternarStatusModulo = async (modulo) => {
+    const novo = modulo.idStatus === STATUS_LIBERADO ? STATUS_RASCUNHO : STATUS_LIBERADO
+    try {
+      await editarModulo(modulo.id, { idStatus: novo })
+      setModulos((atual) => atual.map((m) => (m.id === modulo.id ? { ...m, idStatus: novo } : m)))
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+    }
+  }
+
+  const alternarStatusCurso = async () => {
+    const novo = curso.status === 'publicado' ? 'rascunho' : 'publicado'
+    try {
+      await alterarStatusDoCurso(idCurso, novo)
+      setCurso((c) => ({ ...c, status: novo }))
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+    }
+  }
+
   const renomearAula = async (aula) => {
     const novo = window.prompt('Nome da aula', aula.nome)
     if (!novo?.trim() || novo === aula.nome) return
@@ -246,9 +348,25 @@ const EstruturaDoCurso = () => {
         <Typography variant='h5' sx={{ ...fonte, fontWeight: 700 }}>
           {curso?.nome}
         </Typography>
+        <Chip
+          size='small'
+          label={curso?.status === 'publicado' ? 'Publicado' : 'Rascunho'}
+          color={curso?.status === 'publicado' ? 'success' : 'default'}
+          variant={curso?.status === 'publicado' ? 'filled' : 'outlined'}
+        />
+        <Box sx={{ flex: 1 }} />
+        <Button
+          variant={curso?.status === 'publicado' ? 'outlined' : 'contained'}
+          startIcon={curso?.status === 'publicado' ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
+          onClick={alternarStatusCurso}
+          sx={{ ...fonte, textTransform: 'none', fontWeight: 600 }}
+        >
+          {curso?.status === 'publicado' ? 'Despublicar' : 'Publicar curso'}
+        </Button>
       </Stack>
       <Typography variant='body2' sx={{ ...fonte, color: 'text.secondary', mb: 4, ml: 5 }}>
         {modulos.length} módulos · {totalAulas} aulas
+        {curso?.status !== 'publicado' && ' · só você enxerga este curso'}
       </Typography>
 
       {erro && <Alert severity='error' onClose={() => setErro('')} sx={{ mb: 3, ...fonte }}>{erro}</Alert>}
@@ -275,17 +393,40 @@ const EstruturaDoCurso = () => {
       ) : (
         <>
           {modulos.map((modulo, indice) => (
-            <Accordion key={modulo.id} defaultExpanded={indice === 0} sx={{ mb: 2, '&:before': { display: 'none' } }}>
+            <Accordion
+              key={modulo.id}
+              defaultExpanded={indice === 0}
+              sx={{ mb: 2, '&:before': { display: 'none' } }}
+              {...arrastarModulos.props(modulo.id, indice)}
+            >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Stack direction='row' alignItems='center' spacing={2} sx={{ flex: 1, pr: 2 }}>
+                  <Tooltip title='Arraste para reordenar'>
+                    <DragIndicatorIcon
+                      sx={{ color: 'text.disabled', cursor: 'grab' }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </Tooltip>
                   <Chip label={indice + 1} size='small' sx={{ fontWeight: 700, minWidth: 32 }} />
                   <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ ...fonte, fontWeight: 600 }}>{modulo.nome}</Typography>
+                    <Stack direction='row' alignItems='center' spacing={1}>
+                      <Typography sx={{ ...fonte, fontWeight: 600 }}>{modulo.nome}</Typography>
+                      {modulo.idStatus !== STATUS_LIBERADO && (
+                        <Chip label='Rascunho' size='small' variant='outlined' />
+                      )}
+                    </Stack>
                     <Typography variant='caption' sx={{ ...fonte, color: 'text.secondary' }}>
                       {modulo.aulas.length} {modulo.aulas.length === 1 ? 'aula' : 'aulas'}
                       {Number(modulo.temProva) > 0 && ' · com prova'}
                     </Typography>
                   </Box>
+                  <Tooltip title={modulo.idStatus === STATUS_LIBERADO ? 'Ocultar do aluno' : 'Publicar módulo'}>
+                    <IconButton size='small' onClick={(e) => { e.stopPropagation(); alternarStatusModulo(modulo) }}>
+                      {modulo.idStatus === STATUS_LIBERADO
+                        ? <VisibilityOutlinedIcon fontSize='small' color='success' />
+                        : <VisibilityOffOutlinedIcon fontSize='small' />}
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title='Renomear módulo'>
                     <IconButton size='small' onClick={(e) => { e.stopPropagation(); renomearModulo(modulo) }}>
                       <EditOutlinedIcon fontSize='small' />
@@ -303,44 +444,13 @@ const EstruturaDoCurso = () => {
               </AccordionSummary>
 
               <AccordionDetails sx={{ pt: 0 }}>
-                {modulo.aulas.map((aula) => {
-                  const envio = envios[aula.id]
-                  const situacao = situacaoDoVideo(aula, envio)
-
-                  return (
-                    <Box
-                      key={aula.id}
-                      sx={{
-                        display: 'flex', alignItems: 'center', gap: 2,
-                        py: 1.5, px: 2, mb: 1, borderRadius: 1,
-                        bgcolor: 'action.hover',
-                      }}
-                    >
-                      <PlayCircleOutlineIcon sx={{ color: 'text.disabled' }} />
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography sx={{ ...fonte, fontWeight: 500 }} noWrap>{aula.nome}</Typography>
-                        <Stack direction='row' spacing={0.5} alignItems='center'>
-                          {situacao.icone}
-                          <Typography variant='caption' sx={{ ...fonte, color: 'text.secondary' }}>
-                            {situacao.texto}
-                          </Typography>
-                        </Stack>
-                        {envio !== undefined && (
-                          <LinearProgress variant='determinate' value={envio} sx={{ mt: 1, borderRadius: 1 }} />
-                        )}
-                      </Box>
-                      <IconButton size='small' onClick={() => renomearAula(aula)} disabled={envio !== undefined}>
-                        <EditOutlinedIcon fontSize='small' />
-                      </IconButton>
-                      <IconButton
-                        size='small' disabled={envio !== undefined}
-                        onClick={() => setConfirmacao({ tipo: 'aula', id: aula.id, nome: aula.nome })}
-                      >
-                        <DeleteOutlineIcon fontSize='small' />
-                      </IconButton>
-                    </Box>
-                  )
-                })}
+                <ListaDeAulas
+                  modulo={modulo}
+                  envios={envios}
+                  aoReordenar={soltarAulas(modulo.id)}
+                  aoRenomear={renomearAula}
+                  aoExcluir={(aula) => setConfirmacao({ tipo: 'aula', id: aula.id, nome: aula.nome })}
+                />
 
                 <Button
                   startIcon={<AddIcon />}

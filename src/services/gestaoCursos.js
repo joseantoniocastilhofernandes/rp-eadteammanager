@@ -65,6 +65,13 @@ export async function editarCurso(idCurso, campos) {
     .then(desembrulhar)
 }
 
+/** status: 'rascunho' | 'publicado' */
+export async function alterarStatusDoCurso(idCurso, status) {
+  return axios
+    .put(`${SERVICES_CONTEXT}/gestao/curso`, { idGestor: gestor(), idCurso, status })
+    .then(desembrulhar)
+}
+
 export async function inativarCurso(idCurso) {
   return axios
     .delete(`${SERVICES_CONTEXT}/gestao/curso`, { params: { idGestor: gestor(), idCurso } })
@@ -151,6 +158,9 @@ const MENSAGENS = {
   MODULO_NAO_ENCONTRADO: 'Módulo não encontrado.',
   AULA_NAO_ENCONTRADA: 'Aula não encontrada.',
   CAMPOS_OBRIGATORIOS: 'Preencha todos os campos.',
+  CURSO_SEM_AULA_PUBLICADA: 'Publique ao menos um módulo com aulas antes de publicar o curso.',
+  MODULO_SEM_AULA_PRONTA: 'Adicione ao menos uma aula com vídeo pronto antes de publicar o módulo.',
+  STATUS_INVALIDO: 'Situação inválida.',
   ERRO_INTERNO: 'Algo deu errado. Tente novamente.',
 }
 
