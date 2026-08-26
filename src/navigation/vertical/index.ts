@@ -1,6 +1,7 @@
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
 import ShieldAccountOutline from 'mdi-material-ui/ShieldAccountOutline'
+import BookOpenPageVariantOutline from 'mdi-material-ui/BookOpenPageVariantOutline'
 
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
@@ -29,6 +30,11 @@ const navigation = (): VerticalNavItemsType => {
   ]
 
   if (isAdmin) {
+    items.push({
+      title: 'Cursos',
+      icon: BookOpenPageVariantOutline,
+      path: '/cursos',
+    })
     items.push({
       title: 'Gestão de acessos',
       icon: ShieldAccountOutline,
