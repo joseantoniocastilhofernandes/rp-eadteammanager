@@ -131,6 +131,20 @@ export async function excluirAula(idAula) {
     .then(desembrulhar)
 }
 
+/** Dados completos da aula, para a tela de edição. */
+export async function carregarAula(idAula) {
+  return axios
+    .get(`${SERVICES_CONTEXT}/gestao/aula`, { params: { idGestor: gestor(), idAula, detalhe: 1 } })
+    .then(desembrulhar)
+}
+
+/** Cria um vídeo novo para a aula e devolve a assinatura de envio. */
+export async function trocarVideoDaAula(idAula) {
+  return axios
+    .post(`${SERVICES_CONTEXT}/gestao/aula`, { idGestor: gestor(), idAula })
+    .then(desembrulhar)
+}
+
 /** Situação do processamento do vídeo na Bunny. */
 export async function statusDaAula(idAula) {
   return axios
