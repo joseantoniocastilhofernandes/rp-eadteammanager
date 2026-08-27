@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 import Box from '@mui/material/Box'
@@ -42,6 +42,7 @@ import {
 } from 'src/services/gestaoCursos'
 import { enviarVideo, formatarDuracao } from 'src/services/uploadVideo'
 import { useReordenar } from 'src/hooks/useReordenar'
+import DialogoNovaAula from 'src/views/cursos/DialogoNovaAula'
 
 const fonte = { fontFamily: 'DM Sans, sans-serif' }
 const STATUS_LIBERADO = 1
@@ -76,10 +77,9 @@ const PaginaDoModulo = () => {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [aviso, setAviso] = useState('')
-  const [envios, setEnvios] = useState({})
+  const [envios] = useState({})
   const [confirmar, setConfirmar] = useState(null)
-
-  const inputRef = useRef(null)
+  const [dialogoAula, setDialogoAula] = useState(false)
 
   useEffect(() => {
     if (idModulo) buscar()
@@ -152,43 +152,6 @@ const PaginaDoModulo = () => {
     }
   })
 
-  const aoEscolherArquivo = async (evento) => {
-    const arquivo = evento.target.files?.[0]
-    if (!arquivo) return
-    const nomeAula = arquivo.name.replace(/\.[^.]+$/, '').slice(0, 100)
-
-    try {
-      const criada = await criarAula(idModulo, nomeAula)
-      setModulo((m) => ({
-        ...m,
-        aulas: [...m.aulas, {
-          id: criada.idAula, nome: nomeAula, ordem: criada.ordem,
-          idVideo: criada.idVideo, statusVideo: 'enviando', duracaoSegundos: null,
-        }],
-      }))
-      setEnvios((e) => ({ ...e, [criada.idAula]: 0 }))
-
-      await enviarVideo(arquivo, criada.upload, {
-        titulo: nomeAula,
-        aoProgredir: (pct) => setEnvios((e) => ({ ...e, [criada.idAula]: pct })),
-      })
-
-      setEnvios((e) => {
-        const copia = { ...e }
-        delete copia[criada.idAula]
-
-        return copia
-      })
-      setModulo((m) => ({
-        ...m,
-        aulas: m.aulas.map((a) => (a.id === criada.idAula ? { ...a, statusVideo: 'processando' } : a)),
-      }))
-    } catch (err) {
-      setErro(mensagemDeErro(err) || 'O envio falhou.')
-      setEnvios({})
-    }
-  }
-
   const removerAula = async () => {
     try {
       await excluirAula(confirmar.id)
@@ -221,8 +184,6 @@ const PaginaDoModulo = () => {
 
   return (
     <Box sx={{ maxWidth: 900 }}>
-      <input ref={inputRef} type='file' accept='video/*' style={{ display: 'none' }} onChange={aoEscolherArquivo} />
-
       <Stack direction='row' alignItems='center' spacing={1} sx={{ mb: 0.5 }}>
         <IconButton size='small' onClick={() => router.push(`/cursos/${idCurso}`)}>
           <ArrowBackIcon />
@@ -291,7 +252,7 @@ const PaginaDoModulo = () => {
             </Box>
             <Button
               variant='contained' startIcon={<AddIcon />}
-              onClick={() => { inputRef.current.value = ''; inputRef.current.click() }}
+              onClick={() => setDialogoAula(true)}
               sx={{ ...fonte, textTransform: 'none', fontWeight: 600 }}
             >
               Adicionar aula
@@ -388,6 +349,13 @@ const PaginaDoModulo = () => {
           </Stack>
         </CardContent>
       </Card>
+
+      <DialogoNovaAula
+        aberto={dialogoAula}
+        idModulo={idModulo}
+        aoFechar={() => setDialogoAula(false)}
+        aoConcluir={() => buscar()}
+      />
 
       <Dialog open={!!confirmar} onClose={() => setConfirmar(null)} maxWidth='xs' fullWidth>
         <DialogTitle sx={{ ...fonte, fontWeight: 700 }}>Excluir aula?</DialogTitle>

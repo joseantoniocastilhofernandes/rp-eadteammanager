@@ -34,6 +34,7 @@ import {
   carregarAula, editarAula, excluirAula, trocarVideoDaAula, statusDaAula, mensagemDeErro,
 } from 'src/services/gestaoCursos'
 import { enviarVideo, formatarDuracao } from 'src/services/uploadVideo'
+import PainelDeAnexos from 'src/views/cursos/PainelDeAnexos'
 
 const fonte = { fontFamily: 'DM Sans, sans-serif' }
 
@@ -273,6 +274,10 @@ const EditarAula = () => {
           )}
         </CardContent>
       </Card>
+
+      <Box sx={{ mb: 4 }}>
+        <PainelDeAnexos idAula={idAula} />
+      </Box>
 
       <Divider sx={{ mb: 3 }} />
 

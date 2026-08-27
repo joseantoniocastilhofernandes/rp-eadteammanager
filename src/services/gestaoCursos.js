@@ -215,6 +215,27 @@ export async function statusDaAula(idAula) {
     .then(desembrulhar)
 }
 
+// ── anexos ────────────────────────────────────────────────────────────
+
+export async function listarAnexos(idAula) {
+  return axios
+    .get(`${SERVICES_CONTEXT}/gestao/anexo`, { params: { idGestor: gestor(), idAula } })
+    .then(desembrulhar)
+}
+
+/** Grava o registro e devolve a URL assinada para enviar o arquivo ao S3. */
+export async function prepararAnexo(idAula, nome, extensao, descricao) {
+  return axios
+    .post(`${SERVICES_CONTEXT}/gestao/anexo`, { idGestor: gestor(), idAula, nome, extensao, descricao })
+    .then(desembrulhar)
+}
+
+export async function excluirAnexo(idAnexo) {
+  return axios
+    .delete(`${SERVICES_CONTEXT}/gestao/anexo`, { params: { idGestor: gestor(), idAnexo } })
+    .then(desembrulhar)
+}
+
 // ── consumo ───────────────────────────────────────────────────────────
 
 export async function consumoDoMes() {
@@ -244,6 +265,8 @@ const MENSAGENS = {
   ALTERNATIVA_NAO_ENCONTRADA: 'Alternativa não encontrada.',
   MINIMO_DUAS_ALTERNATIVAS: 'A questão precisa de pelo menos duas alternativas.',
   PROVA_SEM_QUESTAO_VALIDA: 'Marque a resposta certa em pelo menos uma questão antes de publicar.',
+  EXTENSAO_NAO_PERMITIDA: 'Formato não aceito. Use PDF, Word, Excel, PowerPoint, ZIP, JPG ou PNG.',
+  ANEXO_NAO_ENCONTRADO: 'Anexo não encontrado.',
   ERRO_INTERNO: 'Algo deu errado. Tente novamente.',
 }
 
