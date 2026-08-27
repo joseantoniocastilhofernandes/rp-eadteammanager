@@ -104,6 +104,69 @@ export async function excluirModulo(idModulo) {
     .then(desembrulhar)
 }
 
+/** Dados do módulo com as aulas dele. */
+export async function carregarModulo(idModulo) {
+  return axios
+    .get(`${SERVICES_CONTEXT}/gestao/modulo`, { params: { idGestor: gestor(), idModulo } })
+    .then(desembrulhar)
+}
+
+// ── provas ────────────────────────────────────────────────────────────
+
+export async function carregarProva(idModulo) {
+  return axios
+    .get(`${SERVICES_CONTEXT}/gestao/prova`, { params: { idGestor: gestor(), idModulo } })
+    .then(desembrulhar)
+}
+
+export async function criarProva(idModulo, titulo) {
+  return axios
+    .post(`${SERVICES_CONTEXT}/gestao/prova`, { idGestor: gestor(), idModulo, titulo })
+    .then(desembrulhar)
+}
+
+export async function editarProva(idProva, campos) {
+  return axios
+    .put(`${SERVICES_CONTEXT}/gestao/prova`, { idGestor: gestor(), idProva, ...campos })
+    .then(desembrulhar)
+}
+
+export async function criarQuestao(idProva, enunciado) {
+  return axios
+    .post(`${SERVICES_CONTEXT}/gestao/prova`, { idGestor: gestor(), idProva, enunciado })
+    .then(desembrulhar)
+}
+
+export async function editarQuestao(idQuestao, campos) {
+  return axios
+    .put(`${SERVICES_CONTEXT}/gestao/prova`, { idGestor: gestor(), idQuestao, ...campos })
+    .then(desembrulhar)
+}
+
+export async function excluirQuestao(idQuestao) {
+  return axios
+    .delete(`${SERVICES_CONTEXT}/gestao/prova`, { params: { idGestor: gestor(), idQuestao } })
+    .then(desembrulhar)
+}
+
+export async function criarAlternativa(idQuestao, texto) {
+  return axios
+    .post(`${SERVICES_CONTEXT}/gestao/prova`, { idGestor: gestor(), idQuestao, texto })
+    .then(desembrulhar)
+}
+
+export async function editarAlternativa(idAlternativa, campos) {
+  return axios
+    .put(`${SERVICES_CONTEXT}/gestao/prova`, { idGestor: gestor(), idAlternativa, ...campos })
+    .then(desembrulhar)
+}
+
+export async function excluirAlternativa(idAlternativa) {
+  return axios
+    .delete(`${SERVICES_CONTEXT}/gestao/prova`, { params: { idGestor: gestor(), idAlternativa } })
+    .then(desembrulhar)
+}
+
 // ── aulas ─────────────────────────────────────────────────────────────
 
 /** Cria a aula e já devolve a assinatura para enviar o arquivo. */
@@ -175,6 +238,12 @@ const MENSAGENS = {
   CURSO_SEM_AULA_PUBLICADA: 'Publique ao menos um módulo com aulas antes de publicar o curso.',
   MODULO_SEM_AULA_PRONTA: 'Adicione ao menos uma aula com vídeo pronto antes de publicar o módulo.',
   STATUS_INVALIDO: 'Situação inválida.',
+  MODULO_JA_TEM_PROVA: 'Este módulo já tem uma prova.',
+  PROVA_NAO_ENCONTRADA: 'Prova não encontrada.',
+  QUESTAO_NAO_ENCONTRADA: 'Questão não encontrada.',
+  ALTERNATIVA_NAO_ENCONTRADA: 'Alternativa não encontrada.',
+  MINIMO_DUAS_ALTERNATIVAS: 'A questão precisa de pelo menos duas alternativas.',
+  PROVA_SEM_QUESTAO_VALIDA: 'Marque a resposta certa em pelo menos uma questão antes de publicar.',
   ERRO_INTERNO: 'Algo deu errado. Tente novamente.',
 }
 

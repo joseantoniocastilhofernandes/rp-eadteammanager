@@ -35,6 +35,7 @@ import VideoLibraryOutlinedIcon from '@mui/icons-material/VideoLibraryOutlined'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import {
   carregarCurso, criarModulo, excluirModulo, editarModulo, reordenarModulos,
@@ -422,6 +423,14 @@ const EstruturaDoCurso = () => {
                       {modulo.idStatus === STATUS_LIBERADO
                         ? <VisibilityOutlinedIcon fontSize='small' color='success' />
                         : <VisibilityOffOutlinedIcon fontSize='small' />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title='Abrir módulo'>
+                    <IconButton
+                      size='small'
+                      onClick={(e) => { e.stopPropagation(); router.push(`/cursos/${idCurso}/modulo/${modulo.id}`) }}
+                    >
+                      <OpenInNewIcon fontSize='small' />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title='Renomear módulo'>
