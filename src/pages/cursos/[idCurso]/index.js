@@ -39,7 +39,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import {
   carregarCurso, criarModulo, excluirModulo, editarModulo, reordenarModulos,
-  criarAula, excluirAula, reordenarAulas, statusDaAula,
+  excluirAula, reordenarAulas, statusDaAula,
   alterarStatusDoCurso, mensagemDeErro,
 } from 'src/services/gestaoCursos'
 import { enviarVideo, formatarDuracao } from 'src/services/uploadVideo'
@@ -213,6 +213,48 @@ const EstruturaDoCurso = () => {
     try {
       await editarModulo(modulo.id, { nome: novo.trim() })
       setModulos((atual) => atual.map((m) => (m.id === modulo.id ? { ...m, nome: novo.trim() } : m)))
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+    }
+  }
+
+  // ── reordenar ───────────────────────────────────────────────────────
+  const arrastarModulos = useReordenar(modulos, async (ordem, nova) => {
+    setModulos(nova) // resposta imediata; o servidor confirma depois
+    try {
+      await reordenarModulos(idCurso, ordem)
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+      buscar()
+    }
+  })
+
+  const soltarAulas = (idModulo) => async (ordem, nova) => {
+    setModulos((atual) => atual.map((m) => (m.id === idModulo ? { ...m, aulas: nova } : m)))
+    try {
+      await reordenarAulas(idModulo, ordem)
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+      buscar()
+    }
+  }
+
+  // ── publicar ────────────────────────────────────────────────────────
+  const alternarStatusModulo = async (modulo) => {
+    const novo = modulo.idStatus === STATUS_LIBERADO ? STATUS_RASCUNHO : STATUS_LIBERADO
+    try {
+      await editarModulo(modulo.id, { idStatus: novo })
+      setModulos((atual) => atual.map((m) => (m.id === modulo.id ? { ...m, idStatus: novo } : m)))
+    } catch (err) {
+      setErro(mensagemDeErro(err))
+    }
+  }
+
+  const alternarStatusCurso = async () => {
+    const novo = curso.status === 'publicado' ? 'rascunho' : 'publicado'
+    try {
+      await alterarStatusDoCurso(idCurso, novo)
+      setCurso((c) => ({ ...c, status: novo }))
     } catch (err) {
       setErro(mensagemDeErro(err))
     }
